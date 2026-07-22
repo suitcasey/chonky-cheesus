@@ -24,6 +24,20 @@
     return '';
   }
 
+  function isHostedPublic() {
+    const h = (location.hostname || '').toLowerCase();
+    if (!h || h === 'localhost' || h === '127.0.0.1') return false;
+    return true;
+  }
+
+  function publicSiteUrl() {
+    if (location.protocol === 'file:') {
+      return 'https://chonky-cheesus.onrender.com/newchonky.html';
+    }
+    const origin = location.origin || 'https://chonky-cheesus.onrender.com';
+    return origin.replace(/\/$/, '') + '/newchonky.html';
+  }
+
   async function api(path, options = {}) {
     const url = apiBase() + path;
     const res = await fetch(url, {
@@ -50,6 +64,7 @@
 
   const PublicCult = {
     online: false,
+    waking: false,
     whispers: [],
     saints: [],
     amplifiesLeft: 7,
@@ -59,12 +74,32 @@
       try {
         const h = await api('/api/health');
         this.online = !!(h && h.ok);
+        this.waking = false;
         this.lastError = null;
       } catch (e) {
         this.online = false;
         this.lastError = e.message;
       }
       return this.online;
+    },
+
+    /** Retry health for free-tier cold starts (e.g. Render sleep). */
+    async probeWithRetry({ attempts = 18, delayMs = 4000, onAttempt } = {}) {
+      this.waking = !this.online && isHostedPublic();
+      for (let i = 0; i < attempts; i++) {
+        if (typeof onAttempt === 'function') onAttempt(i + 1, attempts);
+        const ok = await this.probe();
+        if (ok) {
+          this.waking = false;
+          return true;
+        }
+        this.waking = isHostedPublic();
+        if (i < attempts - 1) {
+          await new Promise((r) => setTimeout(r, delayMs));
+        }
+      }
+      this.waking = false;
+      return false;
     },
 
     async refreshWhispers() {
@@ -251,10 +286,12 @@
   }
 
   function shareCaption({ name, rank }) {
+    const link = publicSiteUrl();
     return (
       `I am ${rank} in the cult of Chonky Cheesus.\n` +
       `Name: ${name || 'Anonymous Degen'}\n` +
       `Never meant to make sense. Meant to make you stay.\n` +
+      `${link}\n` +
       `#CHONK #ChonkyCheesus`
     );
   }
@@ -266,5 +303,7 @@
     downloadCanvas,
     shareCaption,
     apiBase,
+    isHostedPublic,
+    publicSiteUrl,
   };
 })(window);

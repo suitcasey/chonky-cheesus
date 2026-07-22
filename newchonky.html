@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>$CHONK • Chonky Cheesus</title>
+    <meta name="description" content="The only memecoin that gets thicker the more you believe. Discover fragments. Transcend the sanctum. Join the cult.">
+    <meta name="theme-color" content="#09090b">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Chonky Cheesus">
+    <meta property="og:title" content="$CHONK • Chonky Cheesus">
+    <meta property="og:description" content="Never meant to make sense. Meant to make you stay. Discover the fragments. Enter the cult.">
+    <meta property="og:url" content="https://chonky-cheesus.onrender.com/newchonky.html">
+    <meta property="og:image" content="https://chonky-cheesus.onrender.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="$CHONK • Chonky Cheesus">
+    <meta name="twitter:description" content="Never meant to make sense. Meant to make you stay.">
+    <meta name="twitter:image" content="https://chonky-cheesus.onrender.com/og-image.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,6 +196,7 @@
 
         <div class="flex flex-wrap items-center justify-end gap-2 text-sm font-medium">
             <button id="sound-toggle" type="button" onclick="toggleSound()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors" title="Sound is muted by default">Sound: Off</button>
+            <button type="button" onclick="copyPublicLink(this)" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-amber-400/30 text-amber-300 text-xs transition-colors">Copy Link</button>
             <button onclick="setUsername()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Set Name</button>
             <button onclick="resetProgress()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Reset</button>
             <button onclick="document.getElementById('daily-rite').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-amber-400/30 text-amber-300 transition-colors">Daily Rite</button>
@@ -338,15 +354,20 @@
                     <div class="text-sm"><span class="text-zinc-400">Public amplifies left today:</span> <span id="public-amplifies-left" class="font-bold text-amber-400">—</span></div>
                     <button onclick="refreshPublicWall()" class="text-xs px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-400 hover:bg-zinc-900">Refresh</button>
                 </div>
+                <div id="public-wake-banner" class="mb-4 hidden rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100/90">
+                    <strong class="text-amber-300">Sanctum is waking…</strong>
+                    <p class="mt-1 text-zinc-400">Free host was asleep. Retrying connection — usually 30–60 seconds. Stay on this page.</p>
+                    <p id="wake-attempt" class="mt-2 text-xs font-mono text-amber-500/80"></p>
+                </div>
                 <div id="public-offline-banner" class="mb-4 hidden rounded-2xl border border-zinc-700 bg-zinc-900/80 p-4 text-sm text-zinc-400">
-                    <strong class="text-amber-400">Cult server offline.</strong>
-                    <p class="mt-1">Click a field to select all, then ⌘C — or hit Copy.</p>
-                    <div class="mt-3 space-y-3">
+                    <strong class="text-amber-400" id="offline-title">Cult server offline.</strong>
+                    <p class="mt-1" id="offline-body">Click a field to select all, then ⌘C — or hit Copy. Local only until the API is up.</p>
+                    <div id="offline-local-help" class="mt-3 space-y-3">
                         <div>
                             <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Terminal command</div>
                             <div class="flex gap-2">
                                 <input id="copy-server-cmd" type="text" readonly
-                                    value="cd ~/Desktop/chonky-cheesus && python3 server.py"
+                                    value="cd /Users/caseymckinley/Desktop/chonky-cheesus && python3 server.py"
                                     onclick="this.select()"
                                     onfocus="this.select()"
                                     class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
@@ -354,7 +375,7 @@
                             </div>
                         </div>
                         <div>
-                            <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Then open this URL</div>
+                            <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Local URL</div>
                             <div class="flex gap-2">
                                 <input id="copy-server-url" type="text" readonly
                                     value="http://127.0.0.1:8787/newchonky.html"
@@ -364,6 +385,18 @@
                                 <button type="button" onclick="copyField('copy-server-url', this)" class="shrink-0 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-300">Copy</button>
                             </div>
                         </div>
+                    </div>
+                    <div id="offline-hosted-help" class="mt-3 hidden">
+                        <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Public cult link</div>
+                        <div class="flex gap-2">
+                            <input id="copy-public-url" type="text" readonly
+                                value="https://chonky-cheesus.onrender.com/newchonky.html"
+                                onclick="this.select()"
+                                onfocus="this.select()"
+                                class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
+                            <button type="button" onclick="copyField('copy-public-url', this)" class="shrink-0 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-300">Copy</button>
+                        </div>
+                        <p class="mt-2 text-xs text-zinc-500">Refresh in a minute if the free host is still waking.</p>
                     </div>
                 </div>
                 <div class="mb-6 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
@@ -401,7 +434,8 @@
                 <div class="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-6">
                     <div class="mb-2 text-sm font-semibold text-amber-300">CT Flex</div>
                     <p class="text-sm text-zinc-400 mb-4">Mint a relic card from your rank. Download PNG or copy a caption for the timeline.</p>
-                    <button onclick="openRelicModal()" class="w-full rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-200 hover:bg-amber-400/20">Open Relic Studio</button>
+                    <button onclick="openRelicModal()" class="w-full rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-200 hover:bg-amber-400/20 mb-2">Open Relic Studio</button>
+                    <button type="button" onclick="copyPublicLink(this)" class="w-full rounded-2xl border border-zinc-600 px-4 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-zinc-800">Copy public cult link</button>
                 </div>
             </div>
         </div>
@@ -1557,22 +1591,100 @@
             setTimeout(() => { btn.textContent = prev || 'Copy'; }, 1500);
         }
 
-        function setCultStatus(online) {
+        function isHostedPublic() {
+            return !!(window.ChonkyPublic && ChonkyPublic.isHostedPublic && ChonkyPublic.isHostedPublic());
+        }
+
+        function setCultStatus(online, opts = {}) {
+            const waking = !!opts.waking;
+            const attempt = opts.attempt || 0;
+            const maxAttempts = opts.maxAttempts || 0;
+            const hosted = isHostedPublic();
+
             const dot = document.getElementById('cult-status-dot');
             const text = document.getElementById('cult-status-text');
             const note = document.getElementById('wall-mode-note');
             const banner = document.getElementById('public-offline-banner');
-            if (dot) dot.className = `h-1.5 w-1.5 rounded-full ${online ? 'bg-emerald-400' : 'bg-zinc-600'}`;
+            const wakeBanner = document.getElementById('public-wake-banner');
+            const wakeAttempt = document.getElementById('wake-attempt');
+            const localHelp = document.getElementById('offline-local-help');
+            const hostedHelp = document.getElementById('offline-hosted-help');
+            const offlineTitle = document.getElementById('offline-title');
+            const offlineBody = document.getElementById('offline-body');
+
+            if (dot) {
+                dot.className = `h-1.5 w-1.5 rounded-full ${
+                    online ? 'bg-emerald-400' : waking ? 'bg-amber-400 animate-pulse' : 'bg-zinc-600'
+                }`;
+            }
             if (text) {
-                text.textContent = online ? 'Cult live' : 'Solo';
-                text.className = online ? 'text-emerald-400/90' : 'text-zinc-500';
+                if (online) {
+                    text.textContent = 'Cult live';
+                    text.className = 'text-emerald-400/90';
+                } else if (waking) {
+                    text.textContent = 'Waking…';
+                    text.className = 'text-amber-300';
+                } else {
+                    text.textContent = hosted ? 'Connecting…' : 'Solo';
+                    text.className = 'text-zinc-500';
+                }
             }
             if (note) {
-                note.textContent = online
-                    ? 'Connected to the cult server. Publishes are shared on this host.'
-                    : 'Offline / solo mode — start server.py for a real public wall.';
+                if (online) {
+                    note.textContent = 'Connected. Publishes and saints are shared on this host.';
+                } else if (waking) {
+                    note.textContent = 'Free host waking from sleep — hang tight.';
+                } else if (hosted) {
+                    note.textContent = 'Could not reach the cult API yet. Refresh in a moment.';
+                } else {
+                    note.textContent = 'Offline / solo mode — start server.py for a real public wall.';
+                }
             }
-            if (banner) banner.classList.toggle('hidden', online);
+
+            if (wakeBanner) {
+                const showWake = !online && waking;
+                wakeBanner.classList.toggle('hidden', !showWake);
+                if (wakeAttempt && showWake && maxAttempts) {
+                    wakeAttempt.textContent = `Attempt ${attempt} / ${maxAttempts}`;
+                }
+            }
+            if (banner) {
+                // Show offline help only when truly offline (not mid-wake)
+                const showOffline = !online && !waking;
+                banner.classList.toggle('hidden', !showOffline);
+                if (showOffline) {
+                    if (localHelp) localHelp.classList.toggle('hidden', hosted);
+                    if (hostedHelp) hostedHelp.classList.toggle('hidden', !hosted);
+                    if (offlineTitle) {
+                        offlineTitle.textContent = hosted ? 'Still connecting…' : 'Cult server offline.';
+                    }
+                    if (offlineBody) {
+                        offlineBody.textContent = hosted
+                            ? 'The free host may still be waking. You can keep exploring the myth offline.'
+                            : 'Click a field to select all, then ⌘C — or hit Copy. Local only until the API is up.';
+                    }
+                    const pub = document.getElementById('copy-public-url');
+                    if (pub && window.ChonkyPublic && ChonkyPublic.publicSiteUrl) {
+                        pub.value = ChonkyPublic.publicSiteUrl();
+                    }
+                }
+            }
+        }
+
+        function copyPublicLink(btn) {
+            const url = (window.ChonkyPublic && ChonkyPublic.publicSiteUrl)
+                ? ChonkyPublic.publicSiteUrl()
+                : 'https://chonky-cheesus.onrender.com/newchonky.html';
+            const el = document.getElementById('copy-public-url');
+            if (el) el.value = url;
+            // Reuse copyField if element exists; else clipboard
+            if (el) {
+                copyField('copy-public-url', btn);
+            } else {
+                navigator.clipboard.writeText(url).then(() => flashCopied(btn)).catch(() => {
+                    prompt('Copy this link:', url);
+                });
+            }
         }
 
         function updateClaimUI() {
@@ -1691,10 +1803,22 @@
 
         async function refreshPublicWall() {
             const cult = ChonkyPublic.PublicCult;
-            const online = await cult.probe();
-            setCultStatus(online);
+            const hosted = isHostedPublic();
+
+            let online = await cult.probe();
+            if (!online && hosted && typeof cult.probeWithRetry === 'function') {
+                setCultStatus(false, { waking: true, attempt: 1, maxAttempts: 18 });
+                online = await cult.probeWithRetry({
+                    attempts: 18,
+                    delayMs: 4000,
+                    onAttempt: (n, max) => setCultStatus(false, { waking: true, attempt: n, maxAttempts: max }),
+                });
+            }
+
+            setCultStatus(online, { waking: false });
             if (!online) {
-                document.getElementById('public-amplifies-left').textContent = '—';
+                const left = document.getElementById('public-amplifies-left');
+                if (left) left.textContent = '—';
                 updateClaimUI();
                 return;
             }
