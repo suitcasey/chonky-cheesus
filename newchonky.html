@@ -462,7 +462,7 @@
                             <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Terminal command</div>
                             <div class="flex gap-2">
                                 <input id="copy-server-cmd" type="text" readonly
-                                    value="cd /Users/caseymckinley/Desktop/chonky-cheesus && python3 server.py"
+                                    value="cd ~/Desktop/chonky-cheesus && python3 server.py"
                                     onclick="this.select()"
                                     onfocus="this.select()"
                                     class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
@@ -963,13 +963,31 @@
         }
 
         // ==================== USERNAME ====================
+        const RESERVED_NAME_KEYS = new Set([
+            'chonky', 'cheesus', 'chonkycheesus', 'chonk',
+            'thinones', 'thethinones', 'thinone', 'thethinone',
+            'falseprophet', 'thefalseprophets', 'keeper', 'thekeeper', 'sanctum'
+        ]);
+
+        function normalizeNameKey(name) {
+            return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function isReservedName(name) {
+            return RESERVED_NAME_KEYS.has(normalizeNameKey(name));
+        }
+
         function setUsername() {
             const newName = prompt('Enter your degen name:', username || '');
-            if (newName !== null) {
-                username = newName.trim() || 'Degen';
-                localStorage.setItem(USERNAME_KEY, username);
-                updateUsernameDisplay();
+            if (newName === null) return;
+            const trimmed = newName.trim() || 'Degen';
+            if (isReservedName(trimmed)) {
+                alert('That name belongs to the myth. Chonky and The Thin Ones already speak here.');
+                return;
             }
+            username = trimmed;
+            localStorage.setItem(USERNAME_KEY, username);
+            updateUsernameDisplay();
         }
         function updateUsernameDisplay() {
             const name = username || 'Degen';
@@ -1831,16 +1849,31 @@
 
             const totalCanon = list.filter(x => x.isCanon).length;
             list.forEach(w => {
+                const isSystem = !!w.isSystem;
                 const required = 12 + (w.isCanon ? 0 : totalCanon * 4);
                 const pct = w.isCanon ? 100 : Math.min(100, Math.round((w.amplifies / Math.max(required, 1)) * 100));
                 const remaining = w.isCanon ? 0 : Math.max(0, required - w.amplifies);
                 const div = document.createElement('div');
-                div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
+                const voice = w.voice || (normalizeNameKey(w.username) === 'chonky' ? 'chonky' : '');
+                if (isSystem && voice === 'thin') {
+                    div.className = 'rounded-3xl border border-zinc-500/40 bg-zinc-900/90 p-5';
+                } else if (isSystem) {
+                    div.className = 'rounded-3xl border border-amber-400/50 bg-amber-500/10 p-5';
+                } else {
+                    div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
+                }
                 const name = w.username || 'Anonymous Degen';
-                const badge = w.isCanon
-                    ? `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">CANON</span>`
-                    : '';
-                const growthBar = w.isCanon
+                let badge = '';
+                if (isSystem && voice === 'thin') {
+                    badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-zinc-600 text-zinc-100 font-bold">THE THINNING</span>`;
+                } else if (isSystem) {
+                    badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">GOSPEL</span>`;
+                } else if (w.isCanon) {
+                    badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">CANON</span>`;
+                }
+                const growthBar = isSystem
+                    ? `<div class="mt-3 text-xs ${voice === 'thin' ? 'text-zinc-500' : 'text-amber-500/80'}">${voice === 'thin' ? 'A voice from the edge.' : 'The cheese speaks.'}</div>`
+                    : w.isCanon
                     ? `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Ascended to public canon</span><span>✦</span></div>`
                     : `<div class="mt-3">
                            <div class="mb-1 flex justify-between text-[11px] text-zinc-500">
@@ -1851,15 +1884,18 @@
                                <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400"></div>
                            </div>
                        </div>`;
+                const ampBtn = isSystem
+                    ? ''
+                    : `<button onclick="amplifyPublicWhisper('${w.id}')" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 hover:bg-amber-400/10 ${w.isCanon ? 'opacity-40 cursor-not-allowed' : ''}" ${w.isCanon ? 'disabled' : ''}>
+                            Amplify (${w.amplifies})
+                        </button>`;
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-3 gap-2 flex-wrap">
-                        <span class="font-semibold">${escapeHtml(name)}</span>
+                        <span class="font-semibold ${isSystem && voice === 'thin' ? 'text-zinc-300' : isSystem ? 'text-amber-200' : ''}">${escapeHtml(name)}</span>
                         ${badge}
-                        <button onclick="amplifyPublicWhisper('${w.id}')" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 hover:bg-amber-400/10 ${w.isCanon ? 'opacity-40 cursor-not-allowed' : ''}" ${w.isCanon ? 'disabled' : ''}>
-                            Amplify (${w.amplifies})
-                        </button>
+                        ${ampBtn}
                     </div>
-                    <p class="text-zinc-200">${escapeHtml(w.message)}</p>
+                    <p class="text-zinc-200 ${isSystem ? 'italic' : ''}">${escapeHtml(w.message)}</p>
                     ${growthBar}
                 `;
                 container.appendChild(div);
@@ -1947,6 +1983,10 @@
             const text = input.value.trim();
             if (!text) return;
             const sign = document.getElementById('sign-public-whisper').checked;
+            if (sign && isReservedName(username || 'Degen')) {
+                alert('That name belongs to the myth. Set another name first.');
+                return;
+            }
             try {
                 const res = await cult.postWhisper({
                     message: text,
@@ -2025,6 +2065,10 @@
             }
             if (!isSanctumComplete() || discovered.size < 7) {
                 alert('Claim requires Disciple+: 7 fragments + sanctum complete.');
+                return;
+            }
+            if (isReservedName(username || 'Degen')) {
+                alert('That name belongs to the myth. Pick another degen name.');
                 return;
             }
             if (!riteState) loadRiteState();

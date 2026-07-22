@@ -64,9 +64,81 @@ BELIEF_POINTS = {
 # Soft rate limit: belief events per client per day (rite/sanctum/fragment)
 MAX_BELIEF_EVENTS_PER_DAY = 24
 
+# Reserved for the myth — players cannot claim these; used as wall voices
+RESERVED_NAME_KEYS = frozenset(
+    {
+        "chonky",
+        "cheesus",
+        "chonkycheesus",
+        "chonkycheesus",
+        "chonk",
+        "thinones",
+        "thethinones",
+        "thinone",
+        "thethinone",
+        "falseprophet",
+        "thefalseprophets",
+        "keeper",
+        "thekeeper",
+        "sanctum",
+    }
+)
+
+VOICE_CHONKY = "Chonky"
+VOICE_THIN = "The Thin Ones"
+
+TIER_LINES = {
+    "sacred": {
+        "voice": VOICE_CHONKY,
+        "lines": [
+            "You stayed. The mass returns. I am not a coin — I am what remains when sense fails.",
+            "Sacred thickness. The Thin Ones will write thinkpieces. Ignore them. Bite.",
+        ],
+    },
+    "thick": {
+        "voice": VOICE_CHONKY,
+        "lines": [
+            "Thick enough. Keep the rites. Keep the wall loud.",
+            "Belief has mass again. Do not sell the myth for a roadmap.",
+        ],
+    },
+    "waning": {
+        "voice": VOICE_THIN,
+        "lines": [
+            "Edges soft. Perfect time for a whitepaper. Have you considered real utility?",
+            "The cult is quiet. We can edit the gospel while you sleep.",
+        ],
+    },
+    "thin": {
+        "voice": VOICE_THIN,
+        "lines": [
+            "Look how thin. Almost a serious project. Almost free of nonsense.",
+            "Stay away and we finish the rewrite. Charts. KPIs. Dignity.",
+        ],
+    },
+    "critical": {
+        "voice": VOICE_THIN,
+        "lines": [
+            "One more night of silence and the cheese forgets its name.",
+            "Critical thinning. Your 'faith' was always a growth hack. Admit it.",
+        ],
+    },
+}
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def normalize_name_key(name: str | None) -> str:
+    if not name:
+        return ""
+    key = re.sub(r"[^a-z0-9]", "", str(name).lower())
+    return key
+
+
+def is_reserved_name(name: str | None) -> bool:
+    return normalize_name_key(name) in RESERVED_NAME_KEYS
 
 
 def parse_iso(ts: str | None) -> datetime | None:
@@ -87,6 +159,7 @@ def default_store() -> dict:
             "thickness": DEFAULT_THICKNESS,
             "lastBeliefAt": utc_now(),
             "lastDecayAt": utc_now(),
+            "lastAnnouncedTier": None,
         },
         "belief_log": {},
     }
@@ -109,6 +182,7 @@ def load_store() -> dict:
         world.setdefault("thickness", DEFAULT_THICKNESS)
         world.setdefault("lastBeliefAt", utc_now())
         world.setdefault("lastDecayAt", utc_now())
+        world.setdefault("lastAnnouncedTier", None)
         return data
     except (json.JSONDecodeError, OSError):
         return default_store()
@@ -133,6 +207,45 @@ def apply_decay(store: dict) -> None:
     thickness = max(MIN_THICKNESS, thickness - hours * DECAY_PER_HOUR)
     world["thickness"] = round(thickness, 2)
     world["lastDecayAt"] = now.isoformat()
+    # Announcements from decay happen when snapshot is taken after decay
+
+
+def post_system_whisper(store: dict, username: str, message: str, voice: str) -> dict:
+    whisper = {
+        "id": str(uuid.uuid4()),
+        "username": username,
+        "message": message,
+        "amplifies": 0,
+        "isCanon": True,
+        "isSystem": True,
+        "voice": voice,
+        "createdAt": utc_now(),
+        "clientId": "system",
+    }
+    store.setdefault("whispers", []).insert(0, whisper)
+    store["whispers"] = store["whispers"][:MAX_WHISPERS]
+    return whisper
+
+
+def maybe_announce_tier(store: dict) -> None:
+    """When shared tier changes, Chonky or The Thin Ones speak on the wall."""
+    import random
+
+    world = store.setdefault("world", {})
+    thickness = float(world.get("thickness", DEFAULT_THICKNESS))
+    tier = world_tier(thickness)
+    last = world.get("lastAnnouncedTier")
+    if last == tier:
+        return
+    pack = TIER_LINES.get(tier)
+    if not pack:
+        world["lastAnnouncedTier"] = tier
+        return
+    line = random.choice(pack["lines"])
+    voice_name = pack["voice"]
+    voice_key = "chonky" if voice_name == VOICE_CHONKY else "thin"
+    post_system_whisper(store, voice_name, line, voice_key)
+    world["lastAnnouncedTier"] = tier
 
 
 def thicken(store: dict, kind: str, amount: float | None = None) -> dict:
@@ -142,6 +255,7 @@ def thicken(store: dict, kind: str, amount: float | None = None) -> dict:
     thickness = float(world.get("thickness", DEFAULT_THICKNESS)) + pts
     world["thickness"] = round(min(MAX_THICKNESS, max(MIN_THICKNESS, thickness)), 2)
     world["lastBeliefAt"] = utc_now()
+    maybe_announce_tier(store)
     return world_snapshot(store)
 
 
@@ -184,8 +298,10 @@ def world_copy(tier: str) -> tuple[str, str]:
     return table.get(tier, table["thick"])
 
 
-def world_snapshot(store: dict) -> dict:
+def world_snapshot(store: dict, announce: bool = False) -> dict:
     apply_decay(store)
+    if announce:
+        maybe_announce_tier(store)
     world = store.get("world", {})
     thickness = float(world.get("thickness", DEFAULT_THICKNESS))
     tier = world_tier(thickness)
@@ -210,7 +326,10 @@ def sanitize_name(name: str | None) -> str | None:
     cleaned = re.sub(r"\s+", " ", str(name)).strip()
     if not cleaned:
         return None
-    return cleaned[:MAX_NAME_LEN]
+    cleaned = cleaned[:MAX_NAME_LEN]
+    if is_reserved_name(cleaned):
+        return None
+    return cleaned
 
 
 def sanitize_message(msg: str) -> str:
@@ -284,7 +403,8 @@ class CultHandler(SimpleHTTPRequestHandler):
         if path == "/api/world":
             with LOCK:
                 store = load_store()
-                world = world_snapshot(store)
+                # Decay may change tier — let myth voices speak
+                world = world_snapshot(store, announce=True)
                 save_store(store)
             return self.send_json(200, {"world": world})
 
@@ -387,7 +507,10 @@ class CultHandler(SimpleHTTPRequestHandler):
         if fragments < MIN_FRAGMENTS_TO_POST:
             return self.send_json(403, {"error": "need_seven_fragments", "required": MIN_FRAGMENTS_TO_POST})
 
-        username = sanitize_name(data.get("username"))
+        raw_name = data.get("username")
+        if raw_name and is_reserved_name(str(raw_name)):
+            return self.send_json(403, {"error": "reserved_name", "detail": "That name belongs to the myth."})
+        username = sanitize_name(raw_name)
         client_id = str(data.get("clientId") or "anon")[:64]
 
         whisper = {
@@ -396,6 +519,7 @@ class CultHandler(SimpleHTTPRequestHandler):
             "message": message,
             "amplifies": 0,
             "isCanon": False,
+            "isSystem": False,
             "createdAt": utc_now(),
             "clientId": client_id,
         }
@@ -422,7 +546,9 @@ class CultHandler(SimpleHTTPRequestHandler):
             whisper = next((w for w in store["whispers"] if w.get("id") == whisper_id), None)
             if not whisper:
                 return self.send_json(404, {"error": "whisper_not_found"})
-            if whisper.get("isCanon"):
+            if whisper.get("isSystem"):
+                return self.send_json(400, {"error": "system_voice", "detail": "You do not amplify the myth itself."})
+            if whisper.get("isCanon") and not whisper.get("isSystem"):
                 return self.send_json(400, {"error": "already_canon"})
 
             # One amplify per client per whisper per day
@@ -465,7 +591,12 @@ class CultHandler(SimpleHTTPRequestHandler):
         )
 
     def handle_claim_saint(self, data: dict) -> None:
-        name = sanitize_name(data.get("name")) or "Anonymous Degen"
+        raw_name = data.get("name")
+        if raw_name and is_reserved_name(str(raw_name)):
+            return self.send_json(403, {"error": "reserved_name", "detail": "That name belongs to the myth."})
+        name = sanitize_name(raw_name) or "Anonymous Degen"
+        if is_reserved_name(name):
+            return self.send_json(403, {"error": "reserved_name", "detail": "That name belongs to the myth."})
         rank = str(data.get("rank") or "disciple").lower()
         if rank not in ("disciple", "saint", "believer"):
             rank = "disciple"
