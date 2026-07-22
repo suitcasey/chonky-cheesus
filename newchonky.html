@@ -128,7 +128,11 @@
         #entry-veil {
             position: fixed; inset: 0; z-index: 200;
             display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle at 50% 40%, #1c1410 0%, #09090b 70%);
+            overflow-y: auto;
+            padding: 2rem 1rem;
+            background:
+                radial-gradient(ellipse 70% 50% at 50% 20%, rgba(245, 158, 11, 0.14), transparent 55%),
+                radial-gradient(circle at 50% 40%, #1c1410 0%, #09090b 70%);
             transition: opacity 0.7s ease, visibility 0.7s ease;
         }
         #entry-veil.hidden-veil {
@@ -143,6 +147,23 @@
         @keyframes veil-in {
             from { opacity: 0; transform: translateY(12px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .welcome-step {
+            border: 1px solid rgba(63, 63, 70, 0.9);
+            background: rgba(24, 24, 27, 0.85);
+            border-radius: 1rem;
+            padding: 0.9rem 1rem;
+            text-align: left;
+        }
+        .welcome-step .n {
+            color: #f59e0b;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        #newcomer-coach {
+            animation: section-up 0.5s ease both;
         }
         .btn-craft {
             transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -170,16 +191,34 @@
 </head>
 <body class="bg-zinc-950 text-white">
 
-    <!-- Entry veil -->
-    <div id="entry-veil" role="dialog" aria-label="Enter the sanctum">
-        <div class="text-center px-6">
-            <div class="scripture text-[11px] uppercase tracking-[0.35em] text-amber-500/90 mb-4">The threshold</div>
-            <div class="veil-title text-5xl md:text-6xl text-amber-50 mb-3">CHONKY<br><span class="text-amber-400">CHEESUS</span></div>
-            <p class="text-zinc-500 text-sm mb-8 max-w-xs mx-auto">Never meant to make sense. Meant to make you stay.</p>
-            <button type="button" onclick="crossThreshold()" class="btn-craft rounded-3xl bg-amber-400 px-10 py-3.5 text-sm font-bold text-zinc-950 shadow-lg shadow-amber-500/20 hover:bg-amber-300">
-                Enter the cult
+    <!-- Newcomer welcome — short & sweet -->
+    <div id="entry-veil" role="dialog" aria-modal="true" aria-labelledby="welcome-heading">
+        <div class="mx-auto w-full max-w-md px-4 py-8 text-center">
+            <div class="scripture text-[11px] uppercase tracking-[0.35em] text-amber-500/90 mb-4">$CHONK</div>
+            <h1 id="welcome-heading" class="veil-title text-5xl md:text-6xl text-amber-50 mb-5 leading-none">
+                CHONKY<br><span class="text-amber-400">CHEESUS</span>
+            </h1>
+            <p class="text-zinc-400 text-sm mb-2 max-w-xs mx-auto">
+                It gets <span class="text-amber-300">thicker</span> the more you believe.
+            </p>
+            <p class="text-zinc-500 text-sm mb-10 max-w-xs mx-auto italic">
+                Never meant to make sense.<br>Meant to make you stay.
+            </p>
+            <button type="button" onclick="crossThreshold(false)" class="btn-craft rounded-3xl bg-amber-400 px-12 py-3.5 text-sm font-bold text-zinc-950 shadow-lg shadow-amber-500/25 hover:bg-amber-300">
+                Enter →
             </button>
-            <p class="mt-5 text-[11px] text-zinc-600">Sound is off until you unmute</p>
+            <p class="mt-8 text-[11px] text-zinc-600">Click the cheese. Notice things.</p>
+        </div>
+    </div>
+
+    <!-- Soft first nudge (no spoilers) -->
+    <div id="newcomer-coach" class="hidden fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-sm">
+        <div class="rounded-2xl border border-amber-400/30 bg-zinc-950/95 px-4 py-3 shadow-xl backdrop-blur flex gap-3 items-center">
+            <div class="text-xl leading-none">🧀</div>
+            <p class="flex-1 text-xs text-zinc-400 leading-relaxed">
+                The cheese has secrets. Look closer.
+            </p>
+            <button type="button" onclick="dismissNewcomerCoach()" class="shrink-0 text-zinc-500 hover:text-zinc-300 text-xs px-1" aria-label="Dismiss">✕</button>
         </div>
     </div>
 
@@ -758,6 +797,7 @@
                     <p class="text-zinc-200">${frag.text}</p>
                 `;
                 sfx('unlock');
+                if (typeof updateNewcomerCoach === 'function') updateNewcomerCoach();
                 if (deriveRank().id !== prevRank) {
                     setTimeout(() => showRankUpToast(deriveRank().label), 400);
                 }
@@ -2079,28 +2119,57 @@
             updateSoundToggleUI();
         }
 
-        function crossThreshold() {
+        const WELCOME_KEY = 'chonky_welcome_seen';
+        const COACH_KEY = 'chonky_coach_dismissed';
+
+        function crossThreshold(returning) {
             const veil = document.getElementById('entry-veil');
             if (!veil) return;
             sfx('enter');
             veil.classList.add('hidden-veil');
+            localStorage.setItem(WELCOME_KEY, 'true');
             sessionStorage.setItem('chonky_entered', '1');
+            updateNewcomerCoach();
+            const cheese = document.getElementById('hero-cheese');
+            if (cheese) {
+                setTimeout(() => cheese.scrollIntoView({ behavior: 'smooth', block: 'center' }), 350);
+            }
         }
 
         function maybeShowVeil() {
             const veil = document.getElementById('entry-veil');
             if (!veil) return;
-            // Skip veil on same-session navigations / reloads after enter
-            if (sessionStorage.getItem('chonky_entered') === '1') {
+            // First-time newcomers always see welcome; returning visitors skip
+            const seen = localStorage.getItem(WELCOME_KEY) === 'true'
+                || sessionStorage.getItem('chonky_entered') === '1';
+            if (seen) {
                 veil.classList.add('hidden-veil');
+            } else {
+                veil.classList.remove('hidden-veil');
             }
+            updateNewcomerCoach();
+        }
+
+        function updateNewcomerCoach() {
+            const coach = document.getElementById('newcomer-coach');
+            if (!coach) return;
+            const welcomeOpen = !document.getElementById('entry-veil')?.classList.contains('hidden-veil');
+            const dismissed = localStorage.getItem(COACH_KEY) === 'true';
+            const hasFragments = discovered && discovered.size > 0;
+            const show = !welcomeOpen && !dismissed && !hasFragments;
+            coach.classList.toggle('hidden', !show);
+        }
+
+        function dismissNewcomerCoach() {
+            localStorage.setItem(COACH_KEY, 'true');
+            updateNewcomerCoach();
         }
 
         // ==================== INIT ====================
         async function init() {
+            loadDiscoveredLore();
             maybeShowVeil();
             updateSoundToggleUI();
-            loadDiscoveredLore();
             loadConfessional();
             loadRiteState();
             initLoreSpots();
@@ -2111,6 +2180,7 @@
             updateRiteUI();
             updateGameDisplay();
             updateRankUI();
+            updateNewcomerCoach();
 
             const form = document.getElementById('chat-form');
             if (form) form.addEventListener('submit', sendConfession);
