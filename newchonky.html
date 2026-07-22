@@ -276,9 +276,8 @@
         <div class="flex flex-wrap items-center justify-end gap-2 text-sm font-medium">
             <button id="sound-toggle" type="button" onclick="toggleSound()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors" title="Sound is muted by default">Sound: Off</button>
             <button type="button" onclick="copyPublicLink(this)" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-amber-400/30 text-amber-300 text-xs transition-colors">Copy Link</button>
-            <button onclick="setUsername()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Set Name</button>
+            <a href="profile.html" id="nav-profile" class="btn-craft whitespace-nowrap px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-amber-400/30 text-amber-300 text-xs font-medium transition-colors">Profile</a>
             <button onclick="resetProgress()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Reset</button>
-            <button onclick="document.getElementById('daily-rite').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-amber-400/30 text-amber-300 transition-colors">Daily Rite</button>
             <button onclick="document.getElementById('public-wall').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Public Wall</button>
             <button onclick="openRelicModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Share Relic</button>
             <button onclick="showLoreModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors">Lore</button>
@@ -309,6 +308,18 @@
                 <div id="world-bar" class="h-full rounded-full bg-gradient-to-r from-zinc-500 to-amber-400 transition-all duration-700" style="width:40%"></div>
             </div>
         </div>
+
+        <!-- Compact daily rite chip → Profile -->
+        <a id="rite-chip" href="profile.html" class="mb-10 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 hover:border-amber-500/30 transition-colors">
+            <div class="min-w-0 flex-1">
+                <div class="text-[10px] uppercase tracking-wider text-zinc-500">Daily rite</div>
+                <div id="rite-chip-title" class="text-sm text-zinc-300 truncate">—</div>
+            </div>
+            <div class="text-right shrink-0">
+                <div id="rite-chip-status" class="text-xs font-mono text-amber-400">—</div>
+                <div class="text-[10px] text-zinc-600">Profile →</div>
+            </div>
+        </a>
 
         <section class="section-reveal grid items-center gap-12 md:grid-cols-2">
             <div>
@@ -368,37 +379,6 @@
                     <div><div class="text-xs text-zinc-400">COMBO</div><div id="game-combo" class="text-4xl font-bold text-orange-400">0x</div></div>
                     <div><div class="text-xs text-zinc-400">STREAK</div><div id="game-streak" class="text-4xl font-bold text-amber-200">0</div></div>
                     <div><div class="text-xs text-zinc-400">RANK</div><div id="game-rank" class="text-lg font-bold text-amber-300">Degen</div></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Daily Rite -->
-        <section id="daily-rite" class="mt-16 border-t border-zinc-800 pt-12">
-            <div class="mx-auto max-w-2xl">
-                <div class="text-center">
-                    <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Return Loop</div>
-                    <h2 class="mt-2 text-3xl font-black tracking-tighter">Daily Rite</h2>
-                    <p class="mt-2 text-zinc-500 text-sm">One act of faith per day. Miss a day and the streak fasts. The cult notices absence.</p>
-                </div>
-                <div class="mt-8 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
-                    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
-                        <div>
-                            <div id="rite-title" class="text-lg font-semibold text-amber-200">Loading rite…</div>
-                            <div id="rite-desc" class="mt-1 text-sm text-zinc-400"></div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[11px] uppercase tracking-wider text-zinc-500">Streak</div>
-                            <div id="rite-streak" class="text-2xl font-black text-amber-300">0</div>
-                        </div>
-                    </div>
-                    <div class="mb-2 flex justify-between text-xs text-zinc-500">
-                        <span id="rite-progress-label">0 / 0</span>
-                        <span id="rite-status-label">In progress</span>
-                    </div>
-                    <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
-                        <div id="rite-progress-bar" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 transition-all duration-500" style="width:0%"></div>
-                    </div>
-                    <p id="rite-hint" class="mt-4 text-xs text-zinc-500 italic"></p>
                 </div>
             </div>
         </section>
@@ -565,6 +545,7 @@
     </div>
 
     <script src="cult.js"></script>
+    <script src="keeper.js"></script>
     <script>
         // ==================== CONTENT MODEL ====================
         const LORE_KEY = 'chonky_lore_discovered';
@@ -572,16 +553,7 @@
         const SANCTUM_KEY = 'sanctum_completed';
         const FORBIDDEN_KEY = 'chonky_forbidden_unlocked';
         const CONFESSIONAL_KEY = 'chonky_confessional';
-        const RITE_KEY = 'chonky_daily_rite';
         const THICKNESS_KEY = 'chonky_thickness';
-
-        const RITE_TYPES = [
-            { id: 'bites', title: 'The Nibble', desc: 'Bite the cheese. Presence is mass.', target: 12, action: 'bites', hint: 'Click the cheese wheel.' },
-            { id: 'copium', title: 'The Sacrament', desc: 'Recite the sacred copium.', target: 1, action: 'copium', hint: 'Hit the Copium button.' },
-            { id: 'confess', title: 'The Seal', desc: 'Seal one private confession (Believer+).', target: 1, action: 'confess', hint: 'Open the confessional after 7 fragments.' },
-            { id: 'send_it', title: 'The YOLO', desc: 'SEND IT once. Degens pray out loud.', target: 1, action: 'send_it', hint: 'Hit SEND IT.' },
-            { id: 'amplify_public', title: 'The Witness', desc: 'Amplify once on the Living Wall.', target: 1, action: 'amplify_public', hint: 'Public Wall → Amplify (server online).' }
-        ];
 
         const MYTH = {
             fragments: [
@@ -660,6 +632,10 @@
         }
 
         function deriveRank() {
+            if (window.ChonkyKeeper) {
+                // Keep discovered set in sync for count
+                return ChonkyKeeper.deriveRank();
+            }
             const count = discovered.size;
             const sanctum = isSanctumComplete();
             const forbidden = isForbiddenUnlocked();
@@ -927,36 +903,47 @@
         }
 
         // ==================== USERNAME ====================
-        const RESERVED_NAME_KEYS = new Set([
-            'chonky', 'cheesus', 'chonkycheesus', 'chonk',
-            'thinones', 'thethinones', 'thinone', 'thethinone',
-            'falseprophet', 'thefalseprophets', 'keeper', 'thekeeper', 'sanctum'
-        ]);
-
         function normalizeNameKey(name) {
-            return String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            return window.ChonkyKeeper
+                ? ChonkyKeeper.normalizeNameKey(name)
+                : String(name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         }
 
         function isReservedName(name) {
-            return RESERVED_NAME_KEYS.has(normalizeNameKey(name));
+            return window.ChonkyKeeper
+                ? ChonkyKeeper.isReservedName(name)
+                : false;
         }
 
         function setUsername() {
             const newName = prompt('Enter your degen name:', username || '');
             if (newName === null) return;
-            const trimmed = newName.trim() || 'Degen';
-            if (isReservedName(trimmed)) {
-                alert('That name belongs to the myth. Chonky and The Thin Ones already speak here.');
-                return;
+            if (window.ChonkyKeeper) {
+                const res = ChonkyKeeper.setUsername(newName);
+                if (!res.ok) {
+                    alert('That name belongs to the myth. Chonky and The Thin Ones already speak here.');
+                    return;
+                }
+                username = res.name;
+            } else {
+                username = newName.trim() || 'Degen';
+                localStorage.setItem(USERNAME_KEY, username);
             }
-            username = trimmed;
-            localStorage.setItem(USERNAME_KEY, username);
             updateUsernameDisplay();
         }
+
+        function updateNavProfileLabel() {
+            const el = document.getElementById('nav-profile');
+            if (!el) return;
+            const n = (username || '').trim();
+            el.textContent = n ? n : 'Profile';
+        }
         function updateUsernameDisplay() {
+            username = (window.ChonkyKeeper && ChonkyKeeper.getUsername()) || username || '';
             const name = username || 'Degen';
             const pub = document.getElementById('public-whisper-username');
             if (pub) pub.textContent = name;
+            updateNavProfileLabel();
             updateClaimUI();
         }
 
@@ -1107,141 +1094,41 @@
             trackRite('confess', 1);
         }
 
-        // ==================== DAILY RITE + PROPHECY ====================
-        function todayKey() {
-            const d = new Date();
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-
-        function yesterdayKey() {
-            const d = new Date();
-            d.setDate(d.getDate() - 1);
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-
-        function dayIndex(dateStr) {
-            const [y, m, day] = dateStr.split('-').map(Number);
-            const start = new Date(y, 0, 0);
-            const now = new Date(y, m - 1, day);
-            return Math.floor((now - start) / 86400000);
-        }
-
+        // ==================== DAILY RITE (via keeper) + PROPHECY ====================
         function loadRiteState() {
-            const today = todayKey();
-            let raw = null;
-            try { raw = JSON.parse(localStorage.getItem(RITE_KEY) || 'null'); } catch { raw = null; }
-
-            if (raw && raw.day === today) {
-                riteState = raw;
+            if (window.ChonkyKeeper) {
+                riteState = ChonkyKeeper.loadRiteState();
                 return riteState;
             }
-
-            const type = RITE_TYPES[dayIndex(today) % RITE_TYPES.length];
-            const totalRites = (raw && raw.totalRites) || 0;
-            const lastCompletedDay = (raw && raw.lastCompletedDay) || null;
-            // Keep streak visible only if you completed yesterday (or somehow today)
-            let streak = 0;
-            if (lastCompletedDay === yesterdayKey() || lastCompletedDay === today) {
-                streak = (raw && raw.streak) || 0;
-            }
-
-            riteState = {
-                day: today,
-                typeId: type.id,
-                progress: 0,
-                completed: false,
-                streak,
-                lastCompletedDay,
-                totalRites
-            };
-            saveRiteState();
-            return riteState;
-        }
-
-        function saveRiteState() {
-            if (riteState) localStorage.setItem(RITE_KEY, JSON.stringify(riteState));
-        }
-
-        function currentRiteType() {
-            if (!riteState) loadRiteState();
-            return RITE_TYPES.find(t => t.id === riteState.typeId) || RITE_TYPES[0];
+            return null;
         }
 
         function updateRiteUI() {
-            if (!riteState) loadRiteState();
-            const type = currentRiteType();
-            const title = document.getElementById('rite-title');
-            const desc = document.getElementById('rite-desc');
-            const streakEl = document.getElementById('rite-streak');
+            if (window.ChonkyKeeper) {
+                riteState = ChonkyKeeper.getRiteState();
+            }
+            const sum = window.ChonkyKeeper ? ChonkyKeeper.riteSummary() : null;
+            const chipTitle = document.getElementById('rite-chip-title');
+            const chipStatus = document.getElementById('rite-chip-status');
             const gameStreak = document.getElementById('game-streak');
-            const progLabel = document.getElementById('rite-progress-label');
-            const statusLabel = document.getElementById('rite-status-label');
-            const bar = document.getElementById('rite-progress-bar');
-            const hint = document.getElementById('rite-hint');
 
-            if (title) title.textContent = type.title;
-            if (desc) desc.textContent = type.desc;
-            if (streakEl) streakEl.textContent = String(riteState.streak || 0);
-            if (gameStreak) gameStreak.textContent = String(riteState.streak || 0);
-
-            const progress = riteState.completed ? type.target : Math.min(riteState.progress, type.target);
-            const pct = Math.min(100, Math.round((progress / type.target) * 100));
-            if (progLabel) progLabel.textContent = `${progress} / ${type.target}`;
-            if (bar) bar.style.width = `${pct}%`;
-
-            if (riteState.completed) {
-                if (statusLabel) statusLabel.textContent = 'Rite complete ✦';
-                if (hint) hint.textContent = `Streak ${riteState.streak}. Return tomorrow. Missing a day is fasting — not death.`;
-            } else {
-                if (statusLabel) statusLabel.textContent = 'In progress';
-                if (hint) {
-                    const fasting = !riteState.lastCompletedDay || (riteState.lastCompletedDay !== yesterdayKey() && riteState.lastCompletedDay !== todayKey());
-                    hint.textContent = fasting && riteState.streak === 0 && riteState.totalRites > 0
-                        ? `${type.hint} You fasted. Complete today's rite to light the streak again.`
-                        : type.hint;
+            if (sum) {
+                if (chipTitle) chipTitle.textContent = sum.type.title;
+                if (chipStatus) {
+                    chipStatus.textContent = sum.done
+                        ? `Done · ${sum.state.streak}d`
+                        : `${sum.progress}/${sum.type.target}`;
                 }
+                if (gameStreak) gameStreak.textContent = String(sum.state.streak || 0);
             }
             updateProphecyUI();
         }
 
         function trackRite(action, amount = 1) {
-            if (!riteState) loadRiteState();
-            if (riteState.completed) return;
-            const type = currentRiteType();
-            if (type.action !== action) return;
-
-            riteState.progress = Math.min(type.target, (riteState.progress || 0) + amount);
-            if (riteState.progress >= type.target) {
-                completeRite();
-            } else {
-                saveRiteState();
-                updateRiteUI();
-            }
-        }
-
-        function completeRite() {
-            if (!riteState || riteState.completed) return;
-            const today = todayKey();
-            const yday = yesterdayKey();
-
-            if (riteState.lastCompletedDay === yday) {
-                riteState.streak = (riteState.streak || 0) + 1;
-            } else if (riteState.lastCompletedDay === today) {
-                // already counted
-            } else {
-                riteState.streak = 1; // restart after fast
-            }
-
-            riteState.completed = true;
-            riteState.progress = currentRiteType().target;
-            riteState.lastCompletedDay = today;
-            riteState.totalRites = (riteState.totalRites || 0) + 1;
-            saveRiteState();
+            if (!window.ChonkyKeeper) return;
+            ChonkyKeeper.trackRite(action, amount);
+            riteState = ChonkyKeeper.getRiteState();
             updateRiteUI();
-            showRankUpToast(`Rite · ${riteState.streak}d streak`);
-            sfx('rite');
-            postBelief('rite');
-            if (typeof updateClaimUI === 'function') updateClaimUI();
         }
 
         function updateProphecyUI() {
@@ -1252,8 +1139,9 @@
             section.classList.toggle('hidden', !disciplePlus);
             if (!disciplePlus) return;
 
-            if (!riteState) loadRiteState();
-            const total = riteState.totalRites || 0;
+            if (window.ChonkyKeeper) riteState = ChonkyKeeper.getRiteState();
+            else if (!riteState) loadRiteState();
+            const total = (riteState && riteState.totalRites) || 0;
             const unlocked = MYTH.prophecy.filter(v => total >= v.needRites);
             const list = document.getElementById('prophecy-list');
             const prog = document.getElementById('prophecy-progress');
@@ -2135,6 +2023,16 @@
             maybeShowVeil();
             updateSoundToggleUI();
             loadConfessional();
+            if (window.ChonkyKeeper) {
+                ChonkyKeeper.setOnRiteComplete((state) => {
+                    riteState = state;
+                    showRankUpToast(`Rite · ${state.streak}d streak`);
+                    sfx('rite');
+                    postBelief('rite');
+                    updateRiteUI();
+                    if (typeof updateClaimUI === 'function') updateClaimUI();
+                });
+            }
             loadRiteState();
             initLoreSpots();
             initCheeseParticles();
