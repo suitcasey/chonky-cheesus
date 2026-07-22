@@ -280,7 +280,6 @@
             <button onclick="resetProgress()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Reset</button>
             <button onclick="document.getElementById('daily-rite').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-amber-400/30 text-amber-300 transition-colors">Daily Rite</button>
             <button onclick="document.getElementById('public-wall').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Public Wall</button>
-            <button onclick="document.getElementById('cummandments').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Tablets</button>
             <button onclick="openRelicModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Share Relic</button>
             <button onclick="showLoreModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors">Lore</button>
             <div id="cult-status" class="ml-1 flex items-center gap-1.5 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-[11px] text-zinc-500" title="Public cult connection">
@@ -536,36 +535,6 @@
         </div>
     </section>
 
-    <!-- LOCAL TABLETS -->
-    <section id="cummandments" class="mx-auto max-w-screen-xl px-6 py-16 border-t border-zinc-800">
-        <div class="mb-8 text-center">
-            <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Your Tablets</div>
-            <h2 class="mt-2 text-3xl font-black tracking-tighter">Practice Cummandments</h2>
-            <p class="mt-2 text-zinc-400 max-w-lg mx-auto">
-                Local drills only — this device. When you're ready for witnesses, publish on the Living Wall above.
-            </p>
-        </div>
-        <div class="max-w-3xl mx-auto">
-            <div class="mb-4 flex justify-between items-center px-1">
-                <div class="text-sm"><span class="text-zinc-400">Local amplifies left today:</span> <span id="amplifies-left" class="font-bold text-amber-400">7</span></div>
-                <div class="text-xs text-zinc-600">This browser only</div>
-            </div>
-            <div class="mb-8 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
-                <h3 class="font-semibold mb-4">Carve a Local Whisper</h3>
-                <textarea id="whisper-input" rows="3" placeholder="Practice what the cheese showed you..." class="w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm resize-y"></textarea>
-                <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center gap-x-2 text-sm">
-                        <input type="checkbox" id="sign-whisper" class="accent-amber-400" checked>
-                        <label for="sign-whisper" class="text-zinc-400">Sign as <span id="whisper-username" class="text-amber-400 font-medium"></span></label>
-                    </div>
-                    <button onclick="submitWhisper()" class="px-6 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-2xl text-sm">Save Locally</button>
-                </div>
-            </div>
-            <div id="whispers-feed" class="space-y-4"></div>
-            <p id="whispers-empty" class="hidden text-center text-sm text-zinc-600 py-6">No local whispers yet.</p>
-        </div>
-    </section>
-
     <!-- Relic Modal -->
     <div id="relic-modal" onclick="closeRelicModal()" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 p-4">
         <div onclick="event.stopImmediatePropagation()" class="mx-auto w-full max-w-lg rounded-3xl border border-zinc-700 bg-zinc-900 p-6 max-h-[92vh] overflow-y-auto">
@@ -599,8 +568,6 @@
     <script>
         // ==================== CONTENT MODEL ====================
         const LORE_KEY = 'chonky_lore_discovered';
-        const CUMMANDMENTS_KEY = 'chonky_cummandments';
-        const AMPLIFIES_KEY = 'chonky_amplifies';
         const USERNAME_KEY = 'chonky_username';
         const SANCTUM_KEY = 'sanctum_completed';
         const FORBIDDEN_KEY = 'chonky_forbidden_unlocked';
@@ -612,7 +579,6 @@
             { id: 'bites', title: 'The Nibble', desc: 'Bite the cheese. Presence is mass.', target: 12, action: 'bites', hint: 'Click the cheese wheel.' },
             { id: 'copium', title: 'The Sacrament', desc: 'Recite the sacred copium.', target: 1, action: 'copium', hint: 'Hit the Copium button.' },
             { id: 'confess', title: 'The Seal', desc: 'Seal one private confession (Believer+).', target: 1, action: 'confess', hint: 'Open the confessional after 7 fragments.' },
-            { id: 'amplify_local', title: 'The Echo', desc: 'Amplify a local tablet whisper.', target: 1, action: 'amplify_local', hint: 'Carve a local whisper, then Amplify it.' },
             { id: 'send_it', title: 'The YOLO', desc: 'SEND IT once. Degens pray out loud.', target: 1, action: 'send_it', hint: 'Hit SEND IT.' },
             { id: 'amplify_public', title: 'The Witness', desc: 'Amplify once on the Living Wall.', target: 1, action: 'amplify_public', hint: 'Public Wall → Amplify (server online).' }
         ];
@@ -676,9 +642,7 @@
         };
 
         let discovered = new Set();
-        let whispers = [];
         let confessions = [];
-        let dailyAmplifies = { count: 7, lastReset: null };
         let username = localStorage.getItem(USERNAME_KEY) || '';
         let currentRank = MYTH.ranks[0];
         let riteState = null;
@@ -737,7 +701,7 @@
             if (tagline && sub) {
                 if (currentRank.id === 'saint') {
                     tagline.innerHTML = 'You walked the old sequence. <span class="text-amber-300">The cheese remembers.</span>';
-                    sub.textContent = 'Saint of the private tablets. The cult will hear you later. For now, the myth is thick enough.';
+                    sub.textContent = 'Saint of the Stay. The cult can hear you. Keep the cheese thick.';
                 } else if (currentRank.id === 'disciple') {
                     tagline.innerHTML = 'You have transcended. <span class="text-amber-300">Disciple of the Stay.</span>';
                     sub.textContent = 'The doctrine is open. The room has changed. One secret still waits for those who keep playing.';
@@ -749,7 +713,7 @@
                     sub.textContent = 'Three fragments deep. Literacy is forming. Tourists leave here.';
                 } else {
                     tagline.innerHTML = 'The only memecoin that gets <span class="text-amber-300">thicker</span> the more you believe.';
-                    sub.textContent = 'Discover the fragments. Practice the Cummandments. Become part of the myth.';
+                    sub.textContent = 'Discover the fragments. Join the wall. Become part of the myth.';
                 }
             }
 
@@ -991,8 +955,6 @@
         }
         function updateUsernameDisplay() {
             const name = username || 'Degen';
-            const span = document.getElementById('whisper-username');
-            if (span) span.textContent = name;
             const pub = document.getElementById('public-whisper-username');
             if (pub) pub.textContent = name;
             updateClaimUI();
@@ -1056,7 +1018,7 @@
                 document.head.appendChild(style);
             }
             const notif = document.createElement('div');
-            notif.innerHTML = `<div style="font-size:28px;line-height:1">🧀</div><div style="font-weight:800;font-size:15px;letter-spacing:1px;margin-top:6px">LOCAL CANON</div><div style="font-size:11px;opacity:0.75;margin-top:3px">Your tablets accept this…</div>`;
+            notif.innerHTML = `<div style="font-size:28px;line-height:1">🧀</div><div style="font-weight:800;font-size:15px;letter-spacing:1px;margin-top:6px">CANON</div><div style="font-size:11px;opacity:0.75;margin-top:3px">The wall accepts this…</div>`;
             notif.style.cssText = `position:fixed;top:80px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#09090b;padding:16px 22px;border-radius:18px;z-index:10001;box-shadow:0 8px 32px rgba(245,158,11,0.55),0 0 0 2px #fcd34d;text-align:center;animation:slideInRight 0.4s cubic-bezier(0.34,1.56,0.64,1)`;
             document.body.appendChild(notif);
             setTimeout(() => {
@@ -1143,160 +1105,6 @@
             renderConfessional();
             input.value = '';
             trackRite('confess', 1);
-        }
-
-        // ==================== CUMMANDMENTS ====================
-        function loadCummandments() {
-            const saved = localStorage.getItem(CUMMANDMENTS_KEY);
-            if (saved) whispers = JSON.parse(saved);
-            const amp = localStorage.getItem(AMPLIFIES_KEY);
-            if (amp) {
-                dailyAmplifies = JSON.parse(amp);
-                checkDailyReset();
-            }
-        }
-        function saveCummandments() {
-            localStorage.setItem(CUMMANDMENTS_KEY, JSON.stringify(whispers));
-        }
-        function saveAmplifies() {
-            localStorage.setItem(AMPLIFIES_KEY, JSON.stringify(dailyAmplifies));
-        }
-        function checkDailyReset() {
-            const now = new Date();
-            const last = dailyAmplifies.lastReset ? new Date(dailyAmplifies.lastReset) : null;
-            if (!last || now.getDate() !== last.getDate() || now.getMonth() !== last.getMonth() || now.getFullYear() !== last.getFullYear()) {
-                dailyAmplifies.count = 7;
-                dailyAmplifies.lastReset = now.toISOString();
-                saveAmplifies();
-            }
-        }
-        function updateAmplifyCount() {
-            const el = document.getElementById('amplifies-left');
-            if (el) el.textContent = dailyAmplifies.count;
-        }
-
-        function submitWhisper() {
-            if (discovered.size < 7) {
-                alert('You must discover all 7 lore fragments first.');
-                return;
-            }
-            const input = document.getElementById('whisper-input');
-            const sign = document.getElementById('sign-whisper').checked;
-            const text = input.value.trim();
-            if (!text) return;
-
-            const name = sign ? (username || 'Degen') : null;
-            whispers.unshift({
-                id: Date.now(),
-                username: name,
-                message: text,
-                amplifies: 0,
-                isCanon: false,
-                createdAt: new Date().toISOString()
-            });
-            saveCummandments();
-            renderWhispers();
-            input.value = '';
-        }
-
-        function amplifyWhisper(id) {
-            if (dailyAmplifies.count <= 0) {
-                alert('No amplifies left today.');
-                return;
-            }
-            const w = whispers.find(x => x.id === id);
-            if (!w || w.isCanon) return;
-
-            w.amplifies++;
-            dailyAmplifies.count--;
-
-            const required = 12 + (whispers.filter(x => x.isCanon).length * 4);
-            if (w.amplifies >= required) {
-                w.isCanon = true;
-                triggerCanonEffect();
-            } else {
-                const btn = document.querySelector(`[data-whisper-id="${id}"]`);
-                if (btn) {
-                    const flash = document.createElement('span');
-                    flash.textContent = '+1';
-                    flash.style.cssText = 'position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#f59e0b;pointer-events:none;animation:ampFloat 0.7s ease-out forwards';
-                    btn.style.position = 'relative';
-                    btn.appendChild(flash);
-                    setTimeout(() => flash.remove(), 700);
-                }
-            }
-
-            saveCummandments();
-            saveAmplifies();
-            updateAmplifyCount();
-            renderWhispers();
-            trackRite('amplify_local', 1);
-        }
-
-        function renderWhispers() {
-            if (!document.getElementById('ampFloatStyle')) {
-                const style = document.createElement('style');
-                style.id = 'ampFloatStyle';
-                style.textContent = '@keyframes ampFloat { 0% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-24px); } }';
-                document.head.appendChild(style);
-            }
-            const container = document.getElementById('whispers-feed');
-            const empty = document.getElementById('whispers-empty');
-            container.innerHTML = '';
-
-            if (!whispers.length) {
-                if (empty) empty.classList.remove('hidden');
-                return;
-            }
-            if (empty) empty.classList.add('hidden');
-
-            const totalCanon = whispers.filter(x => x.isCanon).length;
-            whispers.forEach(w => {
-                const required = 12 + (w.isCanon ? 0 : totalCanon * 4);
-                const pct = w.isCanon ? 100 : Math.min(100, Math.round((w.amplifies / required) * 100));
-                const remaining = w.isCanon ? 0 : required - w.amplifies;
-
-                const div = document.createElement('div');
-                div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
-                const name = w.username || 'Anonymous Degen';
-                const badge = w.isCanon
-                    ? `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">LOCAL CANON</span>`
-                    : '';
-                const buttonClass = w.isCanon ? 'opacity-50 cursor-not-allowed' : 'hover:bg-amber-400/10 cursor-pointer';
-                const buttonDisabled = w.isCanon ? 'disabled' : '';
-
-                const growthBar = w.isCanon
-                    ? `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Ascended on your tablets</span><span>✦</span></div>`
-                    : `<div class="mt-3">
-                           <div class="mb-1 flex justify-between text-[11px] text-zinc-500">
-                               <span>${w.amplifies} amplifies</span>
-                               <span>${remaining} until LOCAL CANON</span>
-                           </div>
-                           <div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
-                               <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 transition-all duration-500"></div>
-                           </div>
-                       </div>`;
-
-                div.innerHTML = `
-                    <div class="flex justify-between items-start mb-3 gap-2">
-                        <span class="font-semibold">${escapeHtml(name)}</span>
-                        ${badge}
-                        <button data-whisper-id="${w.id}" onclick="amplifyWhisper(${w.id})" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 ${buttonClass}" ${buttonDisabled}>
-                            Amplify (${w.amplifies})
-                        </button>
-                    </div>
-                    <p class="text-zinc-200">${escapeHtml(w.message)}</p>
-                    ${growthBar}
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function initCummandments() {
-            loadCummandments();
-            updateAmplifyCount();
-            renderWhispers();
-            updateUsernameDisplay();
         }
 
         // ==================== DAILY RITE + PROPHECY ====================
@@ -2330,7 +2138,6 @@
             loadRiteState();
             initLoreSpots();
             initCheeseParticles();
-            initCummandments();
             renderConfessional();
             setupSecrets();
             updateRiteUI();
