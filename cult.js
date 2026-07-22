@@ -69,6 +69,7 @@
     saints: [],
     amplifiesLeft: 7,
     lastError: null,
+    world: null,
 
     async probe() {
       try {
@@ -76,11 +77,27 @@
         this.online = !!(h && h.ok);
         this.waking = false;
         this.lastError = null;
+        if (h && h.world) this.world = h.world;
       } catch (e) {
         this.online = false;
         this.lastError = e.message;
       }
       return this.online;
+    },
+
+    async refreshWorld() {
+      const data = await api('/api/world');
+      this.world = data.world || null;
+      return this.world;
+    },
+
+    async postBelief(kind) {
+      const data = await api('/api/belief', {
+        method: 'POST',
+        body: JSON.stringify({ kind, clientId: getClientId() }),
+      });
+      if (data.world) this.world = data.world;
+      return data;
     },
 
     /** Retry health for free-tier cold starts (e.g. Render sleep). */
@@ -115,7 +132,7 @@
     },
 
     async postWhisper({ message, username, fragments }) {
-      return api('/api/whispers', {
+      const data = await api('/api/whispers', {
         method: 'POST',
         body: JSON.stringify({
           message,
@@ -124,6 +141,8 @@
           clientId: getClientId(),
         }),
       });
+      if (data.world) this.world = data.world;
+      return data;
     },
 
     async amplify(id) {
@@ -132,6 +151,7 @@
         body: JSON.stringify({ clientId: getClientId() }),
       });
       if (typeof data.amplifiesLeft === 'number') this.amplifiesLeft = data.amplifiesLeft;
+      if (data.world) this.world = data.world;
       return data;
     },
 
@@ -153,6 +173,7 @@
       if (data.saint) {
         localStorage.setItem(CLAIMED_KEY, JSON.stringify(data.saint));
       }
+      if (data.world) this.world = data.world;
       return data;
     },
 

@@ -150,8 +150,8 @@
                     <ul class="space-y-3 text-sm text-zinc-400">
                         <li>• Genesis is messy. Cheese, not a board deck.</li>
                         <li>• The mouse proves intent is optional.</li>
-                        <li>• Copium is sacrament. Utility is a false prophet.</li>
-                        <li>• The Stay is the product wearing a coin costume.</li>
+                        <li>• Utility is the Thin Ones' favorite heresy.</li>
+                        <li>• The Stay is faith wearing a coin costume.</li>
                     </ul>
                 </div>
 
@@ -229,6 +229,16 @@
                 const reveal = document.getElementById('final-reveal');
                 reveal.classList.remove('hidden');
                 localStorage.setItem(SANCTUM_KEY, 'true');
+                // Feed shared thickness (best-effort)
+                try {
+                    const cid = localStorage.getItem('chonky_client_id') || ('c_' + Math.random().toString(36).slice(2));
+                    localStorage.setItem('chonky_client_id', cid);
+                    fetch('/api/belief', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ kind: 'sanctum', clientId: cid }),
+                    }).catch(() => {});
+                } catch (_) {}
                 if (!confettiFired) {
                     confettiFired = true;
                     triggerCompletionEffects();
