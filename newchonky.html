@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>$CHONK • Chonky Cheesus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --amber: #f59e0b;
+            --ink: #09090b;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background:
+                radial-gradient(ellipse 80% 50% at 10% -10%, rgba(245, 158, 11, 0.16), transparent 50%),
+                radial-gradient(ellipse 60% 40% at 90% 10%, rgba(180, 83, 9, 0.08), transparent 45%),
+                #09090b;
+            color: #fafafa;
+        }
+        .logo-font {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.06em;
+        }
+        .display-font {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            letter-spacing: -0.04em;
+        }
+        .scripture {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            letter-spacing: 0.04em;
+        }
+        .cheese-wheel {
+            transition: transform 0.12s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            animation: cheese-breath 6s ease-in-out infinite;
+        }
+        .lore-spot {
+            position: absolute; width: 26px; height: 26px; border-radius: 50%;
+            cursor: pointer; transition: all 0.3s ease; z-index: 20;
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.06);
+        }
+        .lore-spot:hover {
+            background: rgba(245, 158, 11, 0.25);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+            transform: scale(1.2);
+        }
+        .lore-spot.discovered {
+            background: rgba(245, 158, 11, 0.6);
+            border-color: #f59e0b;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .final-spot { animation: pulse 2s infinite; }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+        }
+        @keyframes cheese-breath {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.015); }
+        }
+
+        .cheese-awakened {
+            box-shadow: 0 0 55px rgba(245, 158, 11, 0.55),
+                        inset 0 0 35px rgba(251, 191, 36, 0.25);
+            border-color: #fbbf24;
+            animation: cheese-breath 6s ease-in-out infinite, awakened-glow 5s ease-in-out infinite;
+        }
+        .cheese-sanctified {
+            box-shadow: 0 0 70px rgba(245, 158, 11, 0.75),
+                        inset 0 0 45px rgba(251, 191, 36, 0.35);
+            border-color: #fcd34d;
+            animation: cheese-breath 5s ease-in-out infinite, sanctified-glow 3.5s ease-in-out infinite;
+        }
+        .sanctum-complete {
+            box-shadow: 0 0 85px rgba(245, 158, 11, 0.85),
+                        inset 0 0 50px rgba(251, 191, 36, 0.4) !important;
+            border-color: #fcd34d !important;
+            animation: cheese-breath 4.5s ease-in-out infinite !important;
+        }
+        .cheese-saint {
+            box-shadow: 0 0 100px rgba(251, 191, 36, 0.95),
+                        0 0 40px rgba(253, 224, 71, 0.5),
+                        inset 0 0 55px rgba(254, 243, 199, 0.35) !important;
+            border-color: #fef08c !important;
+            animation: cheese-breath 4s ease-in-out infinite, saint-glow 2.5s ease-in-out infinite !important;
+        }
+
+        @keyframes awakened-glow {
+            0%, 100% { box-shadow: 0 0 55px rgba(245, 158, 11, 0.55), inset 0 0 35px rgba(251, 191, 36, 0.25); }
+            50% { box-shadow: 0 0 75px rgba(245, 158, 11, 0.7), inset 0 0 45px rgba(251, 191, 36, 0.35); }
+        }
+        @keyframes sanctified-glow {
+            0%, 100% { box-shadow: 0 0 70px rgba(245, 158, 11, 0.75), inset 0 0 45px rgba(251, 191, 36, 0.35); }
+            50% { box-shadow: 0 0 95px rgba(245, 158, 11, 0.95), inset 0 0 55px rgba(251, 191, 36, 0.45); }
+        }
+        @keyframes saint-glow {
+            0%, 100% { box-shadow: 0 0 100px rgba(251, 191, 36, 0.95), 0 0 40px rgba(253, 224, 71, 0.5), inset 0 0 55px rgba(254, 243, 199, 0.35); }
+            50% { box-shadow: 0 0 130px rgba(253, 224, 71, 1), 0 0 60px rgba(254, 243, 199, 0.7), inset 0 0 65px rgba(254, 243, 199, 0.5); }
+        }
+
+        /* Entry veil */
+        #entry-veil {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 50% 40%, #1c1410 0%, #09090b 70%);
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+        }
+        #entry-veil.hidden-veil {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        #entry-veil .veil-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            animation: veil-in 0.8s ease both;
+        }
+        @keyframes veil-in {
+            from { opacity: 0; transform: translateY(12px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .btn-craft {
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .btn-craft:hover { transform: translateY(-1px); }
+        .btn-craft:active { transform: translateY(1px) scale(0.98); }
+        .section-reveal {
+            animation: section-up 0.6s ease both;
+        }
+        @keyframes section-up {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        ::selection {
+            background: rgba(245, 158, 11, 0.35);
+            color: #fff;
+        }
+        /* Prefer reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            .cheese-wheel, .cheese-awakened, .cheese-sanctified, .cheese-saint, .final-spot, .section-reveal, #entry-veil .veil-title {
+                animation: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white">
+
+    <!-- Entry veil -->
+    <div id="entry-veil" role="dialog" aria-label="Enter the sanctum">
+        <div class="text-center px-6">
+            <div class="scripture text-[11px] uppercase tracking-[0.35em] text-amber-500/90 mb-4">The threshold</div>
+            <div class="veil-title text-5xl md:text-6xl text-amber-50 mb-3">CHONKY<br><span class="text-amber-400">CHEESUS</span></div>
+            <p class="text-zinc-500 text-sm mb-8 max-w-xs mx-auto">Never meant to make sense. Meant to make you stay.</p>
+            <button type="button" onclick="crossThreshold()" class="btn-craft rounded-3xl bg-amber-400 px-10 py-3.5 text-sm font-bold text-zinc-950 shadow-lg shadow-amber-500/20 hover:bg-amber-300">
+                Enter the cult
+            </button>
+            <p class="mt-5 text-[11px] text-zinc-600">Sound is off until you unmute</p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 mx-auto flex max-w-screen-xl flex-wrap items-center justify-between gap-4 border-b border-zinc-800/80 bg-zinc-950/90 px-6 py-4 backdrop-blur">
+        <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500">
+                <i class="fa-solid fa-cheese text-3xl text-zinc-950"></i>
+            </div>
+            <div>
+                <div class="logo-font cursor-pointer text-3xl font-bold tracking-tighter">CHONKY</div>
+                <div class="-mt-1 block text-xs font-mono text-amber-400">CHEESUS</div>
+            </div>
+            <div id="rank-badge" class="ml-1 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
+                Degen
+            </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-2 text-sm font-medium">
+            <button id="sound-toggle" type="button" onclick="toggleSound()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors" title="Sound is muted by default">Sound: Off</button>
+            <button onclick="setUsername()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Set Name</button>
+            <button onclick="resetProgress()" class="btn-craft whitespace-nowrap px-3 py-2 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/50 text-zinc-400 text-xs transition-colors">Reset</button>
+            <button onclick="document.getElementById('daily-rite').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl bg-zinc-800 hover:bg-zinc-700 border border-amber-400/30 text-amber-300 transition-colors">Daily Rite</button>
+            <button onclick="document.getElementById('public-wall').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Public Wall</button>
+            <button onclick="document.getElementById('cummandments').scrollIntoView({ behavior: 'smooth' })" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Tablets</button>
+            <button onclick="openRelicModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors text-zinc-300">Share Relic</button>
+            <button onclick="showLoreModal()" class="whitespace-nowrap px-4 py-2 rounded-2xl hover:bg-zinc-800 transition-colors">Lore</button>
+            <div id="cult-status" class="ml-1 flex items-center gap-1.5 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 py-2 text-[11px] text-zinc-500" title="Public cult connection">
+                <span id="cult-status-dot" class="h-1.5 w-1.5 rounded-full bg-zinc-600"></span>
+                <span id="cult-status-text">Solo</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-2xl border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm">
+                <i class="fa-solid fa-book text-amber-400"></i>
+                <span id="lore-count">0/7</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto max-w-screen-xl px-6 pb-16 pt-12">
+        <section class="section-reveal grid items-center gap-12 md:grid-cols-2">
+            <div>
+                <h1 class="display-font mb-4 text-7xl font-bold leading-none md:text-8xl">
+                    CHONKY<br><span class="text-amber-400">CHEESUS</span>
+                </h1>
+                <p id="hero-tagline" class="mb-3 max-w-md text-2xl text-zinc-300">The only memecoin that gets <span class="text-amber-300">thicker</span> the more you believe.</p>
+                <p id="hero-sub" class="mb-8 max-w-md text-zinc-400">Discover the fragments. Practice the Cummandments. Become part of the myth.</p>
+
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="sendIt()" class="btn-craft flex items-center gap-3 rounded-3xl bg-red-500 px-8 py-4 text-lg font-bold shadow-lg shadow-red-500/20 transition-colors hover:bg-red-600"><span>SEND IT</span></button>
+                    <button onclick="generateCopium()" class="btn-craft rounded-3xl border border-zinc-700 px-6 py-4 font-semibold transition-colors hover:bg-zinc-900">Copium</button>
+                    <button onclick="openRelicModal()" class="btn-craft rounded-3xl border border-amber-500/40 bg-amber-500/10 px-6 py-4 font-semibold text-amber-200 transition-colors hover:bg-amber-500/20">Share Relic</button>
+                </div>
+
+                <!-- Private Confessional (Believer+) -->
+                <div id="chat-panel" class="mt-8 hidden w-full max-w-xl rounded-3xl border border-zinc-800 bg-zinc-900/70 p-4 shadow-2xl">
+                    <div class="mb-3 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-book-bible text-amber-400"></i>
+                            <div>
+                                <div class="font-semibold">Private Confessional</div>
+                                <div class="text-xs text-zinc-500">Local only • only you can hear this</div>
+                            </div>
+                        </div>
+                        <div class="rounded-full border border-zinc-600/50 bg-zinc-800/80 px-2 py-1 text-[11px] uppercase tracking-[0.2em] text-zinc-400">Sealed</div>
+                    </div>
+                    <div id="chat-log" class="mb-3 flex max-h-48 flex-col gap-2 overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3 text-sm"></div>
+                    <form id="chat-form" class="flex gap-2">
+                        <input id="chat-input" type="text" placeholder="Confess what the cheese showed you..." class="flex-1 rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm outline-none focus:border-amber-500" />
+                        <button type="submit" class="rounded-2xl bg-amber-400 px-4 py-2 text-sm font-semibold text-zinc-950 transition-colors hover:bg-amber-500">Seal</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cheese -->
+            <div class="flex flex-col items-center">
+                <div id="hero-cheese" onclick="biteCheese()" class="cheese-wheel relative mb-4 flex h-80 w-80 items-center justify-center rounded-full border-[12px] border-amber-600 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-400 shadow-2xl">
+                    <div class="lore-spot" style="top: 18%; left: 22%;" data-index="0"></div>
+                    <div class="lore-spot" style="top: 32%; left: 68%;" data-index="1"></div>
+                    <div class="lore-spot" style="top: 55%; left: 20%;" data-index="2"></div>
+                    <div class="lore-spot" style="top: 72%; left: 55%;" data-index="3"></div>
+                    <div class="lore-spot" style="top: 40%; left: 45%;" data-index="4"></div>
+                    <div class="lore-spot" style="top: 25%; left: 52%;" data-index="5"></div>
+                    <div class="lore-spot" style="top: 62%; left: 38%;" data-index="6"></div>
+                    <div id="final-spot" onclick="event.stopImmediatePropagation(); goToFinalLore();" class="lore-spot hidden final-spot" style="top: 48%; left: 48%; width: 34px; height: 34px; background: #f59e0b; border: 3px solid #fef08c; box-shadow: 0 0 25px #f59e0b;"></div>
+                    <div class="pointer-events-none z-10 text-center">
+                        <i class="fa-solid fa-cheese text-8xl text-amber-700"></i>
+                        <div class="mt-2">
+                            <div class="text-4xl font-black tracking-tighter text-amber-800">CHONK</div>
+                            <div id="cheese-status" class="text-xs text-amber-700">BITE • DISCOVER • TRANSCEND</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-wrap justify-center gap-6 sm:gap-8 text-center">
+                    <div><div class="text-xs text-zinc-400">THICKNESS</div><div id="game-score" class="text-4xl font-bold text-amber-400">0</div></div>
+                    <div><div class="text-xs text-zinc-400">COMBO</div><div id="game-combo" class="text-4xl font-bold text-orange-400">0x</div></div>
+                    <div><div class="text-xs text-zinc-400">STREAK</div><div id="game-streak" class="text-4xl font-bold text-amber-200">0</div></div>
+                    <div><div class="text-xs text-zinc-400">RANK</div><div id="game-rank" class="text-lg font-bold text-amber-300">Degen</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Daily Rite -->
+        <section id="daily-rite" class="mt-16 border-t border-zinc-800 pt-12">
+            <div class="mx-auto max-w-2xl">
+                <div class="text-center">
+                    <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Return Loop</div>
+                    <h2 class="mt-2 text-3xl font-black tracking-tighter">Daily Rite</h2>
+                    <p class="mt-2 text-zinc-500 text-sm">One act of faith per day. Miss a day and the streak fasts. The cult notices absence.</p>
+                </div>
+                <div class="mt-8 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
+                    <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                        <div>
+                            <div id="rite-title" class="text-lg font-semibold text-amber-200">Loading rite…</div>
+                            <div id="rite-desc" class="mt-1 text-sm text-zinc-400"></div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[11px] uppercase tracking-wider text-zinc-500">Streak</div>
+                            <div id="rite-streak" class="text-2xl font-black text-amber-300">0</div>
+                        </div>
+                    </div>
+                    <div class="mb-2 flex justify-between text-xs text-zinc-500">
+                        <span id="rite-progress-label">0 / 0</span>
+                        <span id="rite-status-label">In progress</span>
+                    </div>
+                    <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+                        <div id="rite-progress-bar" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 transition-all duration-500" style="width:0%"></div>
+                    </div>
+                    <p id="rite-hint" class="mt-4 text-xs text-zinc-500 italic"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Doctrine (Disciple+) -->
+        <section id="doctrine-section" class="mt-16 hidden border-t border-zinc-800 pt-12">
+            <div class="mx-auto max-w-2xl text-center">
+                <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Post-Sanctum</div>
+                <h2 class="mt-2 text-3xl font-black tracking-tighter">The Doctrine</h2>
+                <p class="mt-2 text-zinc-500 text-sm">Unlocked when the trials recognize you. Not for tourists.</p>
+                <ul id="doctrine-list" class="mt-8 space-y-4 text-left text-zinc-300"></ul>
+                <p id="saint-hint" class="mt-8 hidden text-sm text-zinc-500 italic">
+                    Saints walk the old sequence. The arcade of the prophets still remembers.
+                </p>
+            </div>
+        </section>
+
+        <!-- Prophecy Chapter II (unlocked via daily rites after Disciple) -->
+        <section id="prophecy-section" class="mt-16 hidden border-t border-zinc-800 pt-12">
+            <div class="mx-auto max-w-2xl">
+                <div class="text-center">
+                    <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Chapter II</div>
+                    <h2 class="mt-2 text-3xl font-black tracking-tighter">The False Prophets</h2>
+                    <p class="mt-2 text-zinc-500 text-sm">Earned by returning. Each completed daily rite peels another verse.</p>
+                    <p id="prophecy-progress" class="mt-2 text-xs font-mono text-amber-400/80">0 / 5 verses</p>
+                </div>
+                <ul id="prophecy-list" class="mt-8 space-y-4"></ul>
+                <p id="prophecy-locked-note" class="mt-4 text-center text-sm text-zinc-600">Complete daily rites to reveal verses.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- PUBLIC WALL -->
+    <section id="public-wall" class="mx-auto max-w-screen-xl px-6 py-16 border-t border-zinc-800">
+        <div class="mb-8 text-center">
+            <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Public Flex</div>
+            <h2 class="mt-2 text-3xl font-black tracking-tighter">The Living Wall</h2>
+            <p class="mt-2 text-zinc-400 max-w-xl mx-auto">
+                Soft-gated scripture. Anyone can read. Believers publish. The cult amplifies.
+                <span id="wall-mode-note" class="block mt-1 text-zinc-500 text-sm">Checking cult server…</span>
+            </p>
+        </div>
+
+        <div class="grid gap-10 lg:grid-cols-5 max-w-6xl mx-auto">
+            <div class="lg:col-span-3">
+                <div class="mb-4 flex flex-wrap justify-between items-center gap-2 px-1">
+                    <div class="text-sm"><span class="text-zinc-400">Public amplifies left today:</span> <span id="public-amplifies-left" class="font-bold text-amber-400">—</span></div>
+                    <button onclick="refreshPublicWall()" class="text-xs px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-400 hover:bg-zinc-900">Refresh</button>
+                </div>
+                <div id="public-offline-banner" class="mb-4 hidden rounded-2xl border border-zinc-700 bg-zinc-900/80 p-4 text-sm text-zinc-400">
+                    <strong class="text-amber-400">Cult server offline.</strong>
+                    <p class="mt-1">Click a field to select all, then ⌘C — or hit Copy.</p>
+                    <div class="mt-3 space-y-3">
+                        <div>
+                            <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Terminal command</div>
+                            <div class="flex gap-2">
+                                <input id="copy-server-cmd" type="text" readonly
+                                    value="cd ~/Desktop/chonky-cheesus && python3 server.py"
+                                    onclick="this.select()"
+                                    onfocus="this.select()"
+                                    class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
+                                <button type="button" onclick="copyField('copy-server-cmd', this)" class="shrink-0 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-300">Copy</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Then open this URL</div>
+                            <div class="flex gap-2">
+                                <input id="copy-server-url" type="text" readonly
+                                    value="http://127.0.0.1:8787/newchonky.html"
+                                    onclick="this.select()"
+                                    onfocus="this.select()"
+                                    class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
+                                <button type="button" onclick="copyField('copy-server-url', this)" class="shrink-0 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-300">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
+                    <h3 class="font-semibold mb-2">Publish a Whisper</h3>
+                    <p class="text-xs text-zinc-500 mb-3">Requires 7 fragments (soft gate). This is the real wall — other browsers on this server can see it.</p>
+                    <textarea id="public-whisper-input" rows="3" placeholder="Speak loud enough for the cult..." class="w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm resize-y"></textarea>
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-x-2 text-sm">
+                            <input type="checkbox" id="sign-public-whisper" class="accent-amber-400" checked>
+                            <label for="sign-public-whisper" class="text-zinc-400">Sign as <span id="public-whisper-username" class="text-amber-400 font-medium"></span></label>
+                        </div>
+                        <button onclick="submitPublicWhisper()" class="px-6 py-2 bg-amber-400 hover:bg-amber-500 text-zinc-950 font-semibold rounded-2xl text-sm">Publish</button>
+                    </div>
+                </div>
+                <div id="public-whispers-feed" class="space-y-4"></div>
+                <p id="public-whispers-empty" class="hidden text-center text-sm text-zinc-600 py-6">Wall is silent. Be the first heretic with taste.</p>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
+                    <div class="mb-1 text-sm font-semibold text-amber-400">Saints Board</div>
+                    <p class="text-xs text-zinc-500 mb-3">Public titles. Rank · thickness · streak flex.</p>
+                    <div class="mb-3 flex flex-wrap gap-1.5">
+                        <button type="button" data-saints-sort="rank" onclick="setSaintsSort('rank')" class="saints-sort-btn rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-[11px] text-amber-200">Rank</button>
+                        <button type="button" data-saints-sort="thickness" onclick="setSaintsSort('thickness')" class="saints-sort-btn rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] text-zinc-400">Thickness</button>
+                        <button type="button" data-saints-sort="streak" onclick="setSaintsSort('streak')" class="saints-sort-btn rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] text-zinc-400">Streak</button>
+                    </div>
+                    <div id="claim-box" class="mb-4 rounded-2xl border border-zinc-800 bg-zinc-950/70 p-4">
+                        <div id="claim-status" class="text-sm text-zinc-400 mb-3">Transcend to claim a public name.</div>
+                        <button id="claim-btn" onclick="claimPublicTitle()" disabled class="w-full rounded-2xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-500 cursor-not-allowed">Claim Title</button>
+                    </div>
+                    <div id="saints-list" class="space-y-2 max-h-80 overflow-y-auto"></div>
+                    <p id="saints-empty" class="text-center text-xs text-zinc-600 py-4">No public titles yet.</p>
+                </div>
+                <div class="rounded-3xl border border-amber-500/20 bg-amber-500/5 p-6">
+                    <div class="mb-2 text-sm font-semibold text-amber-300">CT Flex</div>
+                    <p class="text-sm text-zinc-400 mb-4">Mint a relic card from your rank. Download PNG or copy a caption for the timeline.</p>
+                    <button onclick="openRelicModal()" class="w-full rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-sm font-semibold text-amber-200 hover:bg-amber-400/20">Open Relic Studio</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOCAL TABLETS -->
+    <section id="cummandments" class="mx-auto max-w-screen-xl px-6 py-16 border-t border-zinc-800">
+        <div class="mb-8 text-center">
+            <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Your Tablets</div>
+            <h2 class="mt-2 text-3xl font-black tracking-tighter">Practice Cummandments</h2>
+            <p class="mt-2 text-zinc-400 max-w-lg mx-auto">
+                Local drills only — this device. When you're ready for witnesses, publish on the Living Wall above.
+            </p>
+        </div>
+        <div class="max-w-3xl mx-auto">
+            <div class="mb-4 flex justify-between items-center px-1">
+                <div class="text-sm"><span class="text-zinc-400">Local amplifies left today:</span> <span id="amplifies-left" class="font-bold text-amber-400">7</span></div>
+                <div class="text-xs text-zinc-600">This browser only</div>
+            </div>
+            <div class="mb-8 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
+                <h3 class="font-semibold mb-4">Carve a Local Whisper</h3>
+                <textarea id="whisper-input" rows="3" placeholder="Practice what the cheese showed you..." class="w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-sm resize-y"></textarea>
+                <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-x-2 text-sm">
+                        <input type="checkbox" id="sign-whisper" class="accent-amber-400" checked>
+                        <label for="sign-whisper" class="text-zinc-400">Sign as <span id="whisper-username" class="text-amber-400 font-medium"></span></label>
+                    </div>
+                    <button onclick="submitWhisper()" class="px-6 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-semibold rounded-2xl text-sm">Save Locally</button>
+                </div>
+            </div>
+            <div id="whispers-feed" class="space-y-4"></div>
+            <p id="whispers-empty" class="hidden text-center text-sm text-zinc-600 py-6">No local whispers yet.</p>
+        </div>
+    </section>
+
+    <!-- Relic Modal -->
+    <div id="relic-modal" onclick="closeRelicModal()" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="mx-auto w-full max-w-lg rounded-3xl border border-zinc-700 bg-zinc-900 p-6 max-h-[92vh] overflow-y-auto">
+            <div class="mb-4 flex items-start justify-between gap-3">
+                <div>
+                    <div class="text-xs uppercase tracking-[0.2em] text-amber-400">Relic Studio</div>
+                    <h3 class="text-xl font-bold">Share your flex</h3>
+                </div>
+                <button onclick="closeRelicModal()" class="rounded-xl bg-zinc-800 px-3 py-1 text-sm text-zinc-400 hover:bg-zinc-700">Close</button>
+            </div>
+            <div class="mb-4 flex justify-center overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 p-2">
+                <canvas id="relic-canvas" class="max-w-full h-auto" width="720" height="900" style="width:100%;height:auto;"></canvas>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="downloadRelic()" class="flex-1 rounded-2xl bg-amber-400 px-4 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-300">Download PNG</button>
+                <button onclick="copyRelicCaption()" class="flex-1 rounded-2xl border border-zinc-600 px-4 py-2.5 text-sm font-semibold text-zinc-200 hover:bg-zinc-800">Copy Caption</button>
+            </div>
+            <p id="relic-feedback" class="mt-3 text-center text-xs text-zinc-500"></p>
+        </div>
+    </div>
+
+    <!-- Lore Modal -->
+    <div id="lore-modal" onclick="hideLoreModal()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="mx-4 w-full max-w-md rounded-3xl border border-zinc-700 bg-zinc-900 p-8 max-h-[85vh] overflow-y-auto">
+            <div id="lore-content" class="mb-6 text-lg leading-relaxed"></div>
+            <div class="text-right"><button onclick="hideLoreModal()" class="rounded-2xl bg-zinc-800 px-6 py-2 text-sm transition-colors hover:bg-zinc-700">Close</button></div>
+        </div>
+    </div>
+
+    <script src="cult.js"></script>
+    <script>
+        // ==================== CONTENT MODEL ====================
+        const LORE_KEY = 'chonky_lore_discovered';
+        const CUMMANDMENTS_KEY = 'chonky_cummandments';
+        const AMPLIFIES_KEY = 'chonky_amplifies';
+        const USERNAME_KEY = 'chonky_username';
+        const SANCTUM_KEY = 'sanctum_completed';
+        const FORBIDDEN_KEY = 'chonky_forbidden_unlocked';
+        const CONFESSIONAL_KEY = 'chonky_confessional';
+        const RITE_KEY = 'chonky_daily_rite';
+        const THICKNESS_KEY = 'chonky_thickness';
+
+        const RITE_TYPES = [
+            { id: 'bites', title: 'The Nibble', desc: 'Bite the cheese. Presence is mass.', target: 12, action: 'bites', hint: 'Click the cheese wheel.' },
+            { id: 'copium', title: 'The Sacrament', desc: 'Recite the sacred copium.', target: 1, action: 'copium', hint: 'Hit the Copium button.' },
+            { id: 'confess', title: 'The Seal', desc: 'Seal one private confession (Believer+).', target: 1, action: 'confess', hint: 'Open the confessional after 7 fragments.' },
+            { id: 'amplify_local', title: 'The Echo', desc: 'Amplify a local tablet whisper.', target: 1, action: 'amplify_local', hint: 'Carve a local whisper, then Amplify it.' },
+            { id: 'send_it', title: 'The YOLO', desc: 'SEND IT once. Degens pray out loud.', target: 1, action: 'send_it', hint: 'Hit SEND IT.' },
+            { id: 'amplify_public', title: 'The Witness', desc: 'Amplify once on the Living Wall.', target: 1, action: 'amplify_public', hint: 'Public Wall → Amplify (server online).' }
+        ];
+
+        const MYTH = {
+            fragments: [
+                {
+                    title: 'Genesis',
+                    text: "Chonky Cheesus was born when a degen spilled nacho cheese on his keyboard during a 47x long. The liquid gold shorted the enter key. Buy orders wrote themselves. The market never recovered its dignity — and neither did he."
+                },
+                {
+                    title: 'First Believer',
+                    text: "The first true believer was not a whale. It was a mouse who clicked 'buy' while trying to steal crumbs from the desk. Intent is optional. Conviction is accidental. The cheese does not care why you entered — only that you stayed."
+                },
+                {
+                    title: 'Gravity',
+                    text: "Legend says that holding $CHONK long enough causes your portfolio to develop its own gravity. Charts bend toward bags. Exit liquidity starts feeling personal. False prophets call this 'illiquidity.' The faithful call it home."
+                },
+                {
+                    title: 'Earthquake',
+                    text: "Chonky Cheesus once caused a 9.2 magnitude chart earthquake. Candles wept. Timelines screamed. Most called it 'healthy consolidation.' The doctrine is clear: if you zoom out far enough, even apocalypse is a base."
+                },
+                {
+                    title: 'Sacred Texts',
+                    text: "The sacred texts say: 'He who buys the top shall be granted the gift of infinite copium.' This is not a consolation prize. It is the sacrament. Paper hands panic. Disciples recite. Saints generate their own supply."
+                },
+                {
+                    title: 'Prophecy of Seven',
+                    text: "It is said that when all seven fragments are found, the true form of Chonky Cheesus reveals itself. The hunt is not decoration. Collecting the myth is the rite. Literacy is belonging. Tourists bounce. Believers keep clicking."
+                },
+                {
+                    title: 'The Stay',
+                    text: "The final truth: $CHONK was never meant to make sense. It was meant to make you stay. Utility was always a false prophet. The coin was the costume. The state of mind was the product."
+                }
+            ],
+            doctrine: [
+                "Hold long enough and the chart begins to bend toward your bag.",
+                "Every bite adds mass to the myth. Score is optional. Presence is not.",
+                "Canon is earned by amplification — first on your own tablets, later before the cult.",
+                "Chonky Cheesus was never a coin. He was a state of mind.",
+                "The final truth is never fully understood. That is why you stay."
+            ],
+            forbidden: {
+                title: 'The Forbidden Fragment',
+                text: "Beyond the seven sits a truth the false prophets buried: the arcade of the old gods still answers. Up, up, down, down — the pattern that proved you were never farming, only remembering. Saints are not made by trials alone. They are made by the ones who keep playing after the confetti dies."
+            },
+            // Chapter II — unlocked by completed daily rites (Disciple+ to read fully)
+            prophecy: [
+                { needRites: 1, title: 'Verse I · The Influencer', text: "First came the false prophet with 500k followers and a referral link. He sold the top, then sold a course about selling the top. The cheese does not retweet." },
+                { needRites: 2, title: 'Verse II · The Utility Cult', text: "They demanded roadmap, DAO, real yield. Utility was always a false prophet wearing a blazer. The Stay does not ship features. It ships gravity." },
+                { needRites: 3, title: 'Verse III · Healthy Consolidation', text: "When the chart quaked 9.2, the false prophets called it dead. The faithful called it base-building. History sided with whoever was still here Monday." },
+                { needRites: 5, title: 'Verse IV · The Fast', text: "Missing a day is not death. It is fasting. Streaks break. Myths do not. Return, nibble, and the cheese pretends not to notice — then thickens anyway." },
+                { needRites: 7, title: 'Verse V · The Thicker Tomorrow', text: "Prophecy of return: the cult that only visits once is a tourist trap. The cult that rites daily becomes weather. Thickness is not a number. It is a habit." }
+            ],
+            ranks: [
+                { id: 'degen', label: 'Degen', minFragments: 0, requiresSanctum: false, requiresForbidden: false },
+                { id: 'initiate', label: 'Initiate', minFragments: 3, requiresSanctum: false, requiresForbidden: false },
+                { id: 'believer', label: 'Believer', minFragments: 7, requiresSanctum: false, requiresForbidden: false },
+                { id: 'disciple', label: 'Disciple', minFragments: 7, requiresSanctum: true, requiresForbidden: false },
+                { id: 'saint', label: 'Saint', minFragments: 7, requiresSanctum: true, requiresForbidden: true }
+            ]
+        };
+
+        let discovered = new Set();
+        let whispers = [];
+        let confessions = [];
+        let dailyAmplifies = { count: 7, lastReset: null };
+        let username = localStorage.getItem(USERNAME_KEY) || '';
+        let currentRank = MYTH.ranks[0];
+        let riteState = null;
+        let saintsSort = 'rank';
+        let gameScore = parseInt(localStorage.getItem(THICKNESS_KEY) || '0', 10) || 0;
+        let gameCombo = 0;
+        let comboTimeout;
+
+        // ==================== RANK ====================
+        function isSanctumComplete() {
+            return localStorage.getItem(SANCTUM_KEY) === 'true';
+        }
+        function isForbiddenUnlocked() {
+            return localStorage.getItem(FORBIDDEN_KEY) === 'true';
+        }
+
+        function deriveRank() {
+            const count = discovered.size;
+            const sanctum = isSanctumComplete();
+            const forbidden = isForbiddenUnlocked();
+            let rank = MYTH.ranks[0];
+            for (const r of MYTH.ranks) {
+                if (count >= r.minFragments && (!r.requiresSanctum || sanctum) && (!r.requiresForbidden || forbidden)) {
+                    rank = r;
+                }
+            }
+            return rank;
+        }
+
+        function updateRankUI() {
+            const prevId = currentRank.id;
+            currentRank = deriveRank();
+
+            const badge = document.getElementById('rank-badge');
+            const gameRank = document.getElementById('game-rank');
+            const tagline = document.getElementById('hero-tagline');
+            const sub = document.getElementById('hero-sub');
+            const cheeseStatus = document.getElementById('cheese-status');
+            const doctrineSection = document.getElementById('doctrine-section');
+            const saintHint = document.getElementById('saint-hint');
+            const finalSpot = document.getElementById('final-spot');
+
+            if (badge) {
+                badge.textContent = currentRank.label;
+                const styles = {
+                    degen: 'border-zinc-700 text-zinc-400',
+                    initiate: 'border-amber-700/50 text-amber-400/90',
+                    believer: 'border-amber-500/50 text-amber-300',
+                    disciple: 'border-amber-400 text-amber-200 bg-amber-500/10',
+                    saint: 'border-yellow-300 text-yellow-100 bg-amber-400/20'
+                };
+                badge.className = `ml-1 rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${styles[currentRank.id] || styles.degen}`;
+            }
+            if (gameRank) gameRank.textContent = currentRank.label;
+
+            if (tagline && sub) {
+                if (currentRank.id === 'saint') {
+                    tagline.innerHTML = 'You walked the old sequence. <span class="text-amber-300">The cheese remembers.</span>';
+                    sub.textContent = 'Saint of the private tablets. The cult will hear you later. For now, the myth is thick enough.';
+                } else if (currentRank.id === 'disciple') {
+                    tagline.innerHTML = 'You have transcended. <span class="text-amber-300">Disciple of the Stay.</span>';
+                    sub.textContent = 'The doctrine is open. The room has changed. One secret still waits for those who keep playing.';
+                } else if (currentRank.id === 'believer') {
+                    tagline.innerHTML = 'Seven fragments. <span class="text-amber-300">The sanctum door is warm.</span>';
+                    sub.textContent = 'Enter the trials. Prove you read the myth, not just the memes.';
+                } else if (currentRank.id === 'initiate') {
+                    tagline.innerHTML = 'The cheese is waking. <span class="text-amber-300">Keep hunting.</span>';
+                    sub.textContent = 'Three fragments deep. Literacy is forming. Tourists leave here.';
+                } else {
+                    tagline.innerHTML = 'The only memecoin that gets <span class="text-amber-300">thicker</span> the more you believe.';
+                    sub.textContent = 'Discover the fragments. Practice the Cummandments. Become part of the myth.';
+                }
+            }
+
+            if (cheeseStatus) {
+                const labels = {
+                    degen: 'BITE • DISCOVER • TRANSCEND',
+                    initiate: 'AWAKENED • KEEP HUNTING',
+                    believer: 'SANCTIFIED • ENTER THE TRIALS',
+                    disciple: 'TRANSCENDED • DISCIPLE',
+                    saint: 'SAINT • FORBIDDEN KNOWN'
+                };
+                cheeseStatus.textContent = labels[currentRank.id] || labels.degen;
+            }
+
+            if (doctrineSection) {
+                const showDoctrine = currentRank.id === 'disciple' || currentRank.id === 'saint';
+                doctrineSection.classList.toggle('hidden', !showDoctrine);
+                if (showDoctrine) {
+                    const list = document.getElementById('doctrine-list');
+                    if (list) {
+                        list.innerHTML = MYTH.doctrine.map(line =>
+                            `<li class="rounded-2xl border border-zinc-800 bg-zinc-900/80 px-5 py-4 text-sm leading-relaxed">✦ ${line}</li>`
+                        ).join('');
+                    }
+                }
+            }
+
+            if (saintHint) {
+                saintHint.classList.toggle('hidden', currentRank.id !== 'disciple');
+            }
+
+            updateProphecyUI();
+
+            if (finalSpot) {
+                if (discovered.size >= 7) {
+                    finalSpot.classList.remove('hidden');
+                    finalSpot.title = isSanctumComplete() ? 'Return to the Sanctum' : 'Enter the Inner Sanctum';
+                } else {
+                    finalSpot.classList.add('hidden');
+                }
+            }
+
+            updateCheeseAppearance();
+            if (typeof updateClaimUI === 'function') updateClaimUI();
+        }
+
+        function showRankUpToast(label) {
+            const msg = document.createElement('div');
+            msg.innerHTML = `<div class="text-xs uppercase tracking-[0.25em] opacity-80">Rank Up</div><div class="text-lg font-black mt-1">${label}</div>`;
+            msg.style.cssText = 'position:fixed;top:90px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#09090b;padding:14px 20px;border-radius:16px;z-index:10001;box-shadow:0 8px 28px rgba(245,158,11,0.5);text-align:center';
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 2800);
+        }
+
+        // ==================== LORE ====================
+        function loadDiscoveredLore() {
+            const saved = localStorage.getItem(LORE_KEY);
+            if (saved) discovered = new Set(JSON.parse(saved));
+        }
+        function saveDiscoveredLore() {
+            localStorage.setItem(LORE_KEY, JSON.stringify([...discovered]));
+        }
+
+        function updateLoreCounter() {
+            const countEl = document.getElementById('lore-count');
+            if (countEl) countEl.textContent = `${discovered.size}/7`;
+
+            const chatPanel = document.getElementById('chat-panel');
+            if (chatPanel) chatPanel.classList.toggle('hidden', discovered.size < 7);
+
+            const prev = currentRank.id;
+            updateRankUI();
+            if (currentRank.id !== prev && ['initiate', 'believer', 'disciple', 'saint'].includes(currentRank.id)) {
+                // rank toast on fragment unlock handled in revealLore
+            }
+        }
+
+        function revealLore(index, spotElement) {
+            const modal = document.getElementById('lore-modal');
+            const content = document.getElementById('lore-content');
+            const frag = MYTH.fragments[index];
+            const prevRank = currentRank.id;
+
+            if (discovered.has(index)) {
+                content.innerHTML = `
+                    <div class="mb-2 text-sm text-amber-400 font-bold">${frag.title.toUpperCase()} · ALREADY HELD</div>
+                    <p class="text-zinc-300">${frag.text}</p>
+                `;
+            } else {
+                discovered.add(index);
+                saveDiscoveredLore();
+                if (spotElement) spotElement.classList.add('discovered');
+                updateLoreCounter();
+                content.innerHTML = `
+                    <div class="mb-2 text-sm text-amber-400 font-bold">FRAGMENT ${index + 1} · ${frag.title.toUpperCase()}</div>
+                    <p class="text-zinc-200">${frag.text}</p>
+                `;
+                sfx('unlock');
+                if (deriveRank().id !== prevRank) {
+                    setTimeout(() => showRankUpToast(deriveRank().label), 400);
+                }
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showLoreModal() {
+            const modal = document.getElementById('lore-modal');
+            const content = document.getElementById('lore-content');
+            const sanctum = isSanctumComplete();
+            const canEnter = discovered.size >= 7;
+
+            const foundList = MYTH.fragments.map((f, i) => {
+                const held = discovered.has(i);
+                return `<div class="flex items-start gap-2 text-sm ${held ? 'text-zinc-300' : 'text-zinc-600'}">
+                    <span class="text-amber-500/80">${held ? '✦' : '·'}</span>
+                    <span>${held ? f.title : '???'}</span>
+                </div>`;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="mb-4">
+                    <div class="mb-2 text-sm text-amber-400 font-bold">THE MYTH SPINE</div>
+                    <p class="text-zinc-300 mb-4 text-sm leading-relaxed">
+                        Seven fragments. One sanctum. Literacy is belonging.
+                        ${sanctum ? ' You already walked the trials — return anytime.' : ' Discover all fragments to face the trials.'}
+                    </p>
+                    <p class="text-zinc-400 text-sm mb-3">Held: <span class="text-amber-400 font-mono">${discovered.size}/7</span> · Rank: <span class="text-amber-400">${currentRank.label}</span></p>
+                    <div class="mb-5 space-y-1.5 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">${foundList}</div>
+                    <button onclick="goToFinalLore()" ${canEnter ? '' : 'disabled'}
+                        class="w-full px-4 py-2.5 rounded-2xl font-bold transition-colors ${canEnter ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950' : 'bg-zinc-800 text-zinc-500 cursor-not-allowed'}">
+                        ${sanctum ? 'Return to the Sanctum →' : canEnter ? 'Enter the Sanctum →' : 'Fragments incomplete'}
+                    </button>
+                    ${isForbiddenUnlocked() ? `<button onclick="showForbiddenFragment()" class="mt-2 w-full px-4 py-2 rounded-2xl border border-yellow-500/40 text-yellow-200/90 text-sm hover:bg-yellow-500/10">Reread the Forbidden Fragment</button>` : ''}
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideLoreModal() {
+            const modal = document.getElementById('lore-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        function initLoreSpots() {
+            document.querySelectorAll('.lore-spot[data-index]').forEach(spot => {
+                const index = parseInt(spot.dataset.index, 10);
+                if (!isNaN(index)) {
+                    if (discovered.has(index)) spot.classList.add('discovered');
+                    spot.onclick = (e) => { e.stopImmediatePropagation(); revealLore(index, spot); };
+                }
+            });
+            updateLoreCounter();
+        }
+
+        function goToFinalLore() {
+            if (discovered.size < 7) {
+                alert('Find all seven fragments first. Literacy before entry.');
+                return;
+            }
+            window.location.href = 'chonnkylore.html';
+        }
+
+        function showForbiddenFragment() {
+            const modal = document.getElementById('lore-modal');
+            const content = document.getElementById('lore-content');
+            content.innerHTML = `
+                <div class="mb-2 text-sm font-bold text-yellow-300">FORBIDDEN · SAINT ONLY</div>
+                <div class="mb-2 text-xs uppercase tracking-[0.2em] text-amber-500/80">${MYTH.forbidden.title}</div>
+                <p class="text-zinc-200 leading-relaxed">${MYTH.forbidden.text}</p>
+            `;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function unlockForbiddenPath() {
+            if (!isSanctumComplete()) {
+                // Fun celebration only — not Saint yet
+                return false;
+            }
+            if (isForbiddenUnlocked()) {
+                showForbiddenFragment();
+                return true;
+            }
+            localStorage.setItem(FORBIDDEN_KEY, 'true');
+            updateRankUI();
+            showRankUpToast('Saint');
+            showForbiddenFragment();
+            triggerSaintEffect();
+            return true;
+        }
+
+        function triggerSaintEffect() {
+            const cheese = document.getElementById('hero-cheese');
+            if (cheese) cheese.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const confetto = document.createElement('div');
+                    confetto.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-20px;width:${5 + Math.random()*8}px;height:${5 + Math.random()*8}px;border-radius:50%;background:${['#f59e0b','#fbbf24','#fef08c'][Math.floor(Math.random()*3)]};z-index:9999;pointer-events:none`;
+                    document.body.appendChild(confetto);
+                    confetto.animate(
+                        [{ transform: 'translateY(0)', opacity: 1 }, { transform: `translateY(${window.innerHeight + 80}px) rotate(${Math.random()*360}deg)`, opacity: 0 }],
+                        { duration: 1800 + Math.random() * 1000 }
+                    ).onfinish = () => confetto.remove();
+                }, i * 12);
+            }
+        }
+
+        // ==================== USERNAME ====================
+        function setUsername() {
+            const newName = prompt('Enter your degen name:', username || '');
+            if (newName !== null) {
+                username = newName.trim() || 'Degen';
+                localStorage.setItem(USERNAME_KEY, username);
+                updateUsernameDisplay();
+            }
+        }
+        function updateUsernameDisplay() {
+            const name = username || 'Degen';
+            const span = document.getElementById('whisper-username');
+            if (span) span.textContent = name;
+            const pub = document.getElementById('public-whisper-username');
+            if (pub) pub.textContent = name;
+            updateClaimUI();
+        }
+
+        // ==================== CHEESE ====================
+        function updateCheeseAppearance() {
+            const cheese = document.getElementById('hero-cheese');
+            if (!cheese) return;
+            cheese.classList.remove('cheese-awakened', 'cheese-sanctified', 'sanctum-complete', 'cheese-saint');
+
+            if (currentRank.id === 'saint') {
+                cheese.classList.add('cheese-saint');
+            } else if (currentRank.id === 'disciple' || isSanctumComplete()) {
+                cheese.classList.add('sanctum-complete');
+            } else if (discovered.size >= 7) {
+                cheese.classList.add('cheese-sanctified');
+            } else if (discovered.size >= 3) {
+                cheese.classList.add('cheese-awakened');
+            }
+        }
+
+        function cheeseIsPowered() {
+            const cheese = document.getElementById('hero-cheese');
+            if (!cheese) return false;
+            return cheese.classList.contains('cheese-awakened')
+                || cheese.classList.contains('cheese-sanctified')
+                || cheese.classList.contains('sanctum-complete')
+                || cheese.classList.contains('cheese-saint');
+        }
+
+        function initCheeseParticles() {
+            // Bite handler owns the particle burst; kept for future ambient FX.
+        }
+
+        function createCheeseClickBurst(x, y) {
+            if (!cheeseIsPowered()) return;
+            const colors = ['#f59e0b', '#fbbf24', '#fcd34d'];
+            for (let i = 0; i < 22; i++) {
+                const particle = document.createElement('div');
+                const size = Math.random() * 6 + 4;
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 35 + Math.random() * 55;
+                particle.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:50%;pointer-events:none;z-index:999;box-shadow:0 0 8px #f59e0b;`;
+                document.body.appendChild(particle);
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity;
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 0.9 },
+                    { transform: `translate(${vx}px, ${vy}px) scale(0.2)`, opacity: 0 }
+                ], { duration: 450 + Math.random() * 350, easing: 'ease-out' }).onfinish = () => particle.remove();
+            }
+        }
+
+        // ==================== CANON CELEBRATION ====================
+        function showCanonNotification() {
+            if (!document.getElementById('canonNotifStyle')) {
+                const style = document.createElement('style');
+                style.id = 'canonNotifStyle';
+                style.textContent = `@keyframes slideInRight { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } } @keyframes slideOutRight { from { transform:translateX(0); opacity:1; } to { transform:translateX(120%); opacity:0; } }`;
+                document.head.appendChild(style);
+            }
+            const notif = document.createElement('div');
+            notif.innerHTML = `<div style="font-size:28px;line-height:1">🧀</div><div style="font-weight:800;font-size:15px;letter-spacing:1px;margin-top:6px">LOCAL CANON</div><div style="font-size:11px;opacity:0.75;margin-top:3px">Your tablets accept this…</div>`;
+            notif.style.cssText = `position:fixed;top:80px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#09090b;padding:16px 22px;border-radius:18px;z-index:10001;box-shadow:0 8px 32px rgba(245,158,11,0.55),0 0 0 2px #fcd34d;text-align:center;animation:slideInRight 0.4s cubic-bezier(0.34,1.56,0.64,1)`;
+            document.body.appendChild(notif);
+            setTimeout(() => {
+                notif.style.animation = 'slideOutRight 0.35s ease-in';
+                setTimeout(() => notif.remove(), 340);
+            }, 3600);
+        }
+
+        function triggerCanonEffect() {
+            const cheese = document.getElementById('hero-cheese');
+            if (!cheese) return;
+            cheese.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            showCanonNotification();
+            sfx('canon');
+            setTimeout(() => {
+                const originalShadow = cheese.style.boxShadow;
+                const originalTransform = cheese.style.transform;
+                cheese.style.transition = 'box-shadow 0.3s ease, transform 0.4s ease';
+                cheese.style.boxShadow = '0 0 150px rgba(245, 158, 11, 0.95), inset 0 0 50px rgba(251, 191, 36, 0.5)';
+                cheese.style.transform = 'scale(1.15)';
+                for (let i = 0; i < 60; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        const size = Math.random() * 8 + 3;
+                        const rect = cheese.getBoundingClientRect();
+                        const angle = (i / 60) * Math.PI * 2;
+                        const distance = 40 + Math.random() * 60;
+                        particle.style.cssText = `position:fixed;left:${rect.left + rect.width/2}px;top:${rect.top + rect.height/2}px;width:${size}px;height:${size}px;background:#f59e0b;border-radius:50%;pointer-events:none;z-index:999;box-shadow:0 0 12px #fbbf24;`;
+                        document.body.appendChild(particle);
+                        particle.animate([
+                            { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.9 },
+                            { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0.2)`, opacity: 0 }
+                        ], { duration: 900 + Math.random()*400, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => particle.remove();
+                    }, i * 2);
+                }
+                setTimeout(() => {
+                    cheese.style.boxShadow = originalShadow || '';
+                    cheese.style.transform = originalTransform || 'scale(1)';
+                }, 1400);
+            }, 500);
+        }
+
+        // ==================== CONFESSIONAL ====================
+        function loadConfessional() {
+            const saved = localStorage.getItem(CONFESSIONAL_KEY);
+            if (saved) confessions = JSON.parse(saved);
+        }
+        function saveConfessional() {
+            localStorage.setItem(CONFESSIONAL_KEY, JSON.stringify(confessions));
+        }
+        function renderConfessional() {
+            const log = document.getElementById('chat-log');
+            if (!log) return;
+            if (!confessions.length) {
+                log.innerHTML = '<div class="text-zinc-600 text-xs">No confessions sealed yet.</div>';
+                return;
+            }
+            log.innerHTML = confessions.map(c => `
+                <div class="rounded-xl border border-zinc-800 bg-zinc-900/50 px-3 py-2">
+                    <div class="text-[10px] uppercase tracking-wider text-zinc-600 mb-1">${c.time}</div>
+                    <div class="text-zinc-300">${escapeHtml(c.text)}</div>
+                </div>
+            `).join('');
+            log.scrollTop = log.scrollHeight;
+        }
+        function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        function sendConfession(e) {
+            e.preventDefault();
+            if (discovered.size < 7) {
+                alert('The confessional opens after all seven fragments.');
+                return;
+            }
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text) return;
+            confessions.push({
+                text,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+            if (confessions.length > 40) confessions = confessions.slice(-40);
+            saveConfessional();
+            renderConfessional();
+            input.value = '';
+            trackRite('confess', 1);
+        }
+
+        // ==================== CUMMANDMENTS ====================
+        function loadCummandments() {
+            const saved = localStorage.getItem(CUMMANDMENTS_KEY);
+            if (saved) whispers = JSON.parse(saved);
+            const amp = localStorage.getItem(AMPLIFIES_KEY);
+            if (amp) {
+                dailyAmplifies = JSON.parse(amp);
+                checkDailyReset();
+            }
+        }
+        function saveCummandments() {
+            localStorage.setItem(CUMMANDMENTS_KEY, JSON.stringify(whispers));
+        }
+        function saveAmplifies() {
+            localStorage.setItem(AMPLIFIES_KEY, JSON.stringify(dailyAmplifies));
+        }
+        function checkDailyReset() {
+            const now = new Date();
+            const last = dailyAmplifies.lastReset ? new Date(dailyAmplifies.lastReset) : null;
+            if (!last || now.getDate() !== last.getDate() || now.getMonth() !== last.getMonth() || now.getFullYear() !== last.getFullYear()) {
+                dailyAmplifies.count = 7;
+                dailyAmplifies.lastReset = now.toISOString();
+                saveAmplifies();
+            }
+        }
+        function updateAmplifyCount() {
+            const el = document.getElementById('amplifies-left');
+            if (el) el.textContent = dailyAmplifies.count;
+        }
+
+        function submitWhisper() {
+            if (discovered.size < 7) {
+                alert('You must discover all 7 lore fragments first.');
+                return;
+            }
+            const input = document.getElementById('whisper-input');
+            const sign = document.getElementById('sign-whisper').checked;
+            const text = input.value.trim();
+            if (!text) return;
+
+            const name = sign ? (username || 'Degen') : null;
+            whispers.unshift({
+                id: Date.now(),
+                username: name,
+                message: text,
+                amplifies: 0,
+                isCanon: false,
+                createdAt: new Date().toISOString()
+            });
+            saveCummandments();
+            renderWhispers();
+            input.value = '';
+        }
+
+        function amplifyWhisper(id) {
+            if (dailyAmplifies.count <= 0) {
+                alert('No amplifies left today.');
+                return;
+            }
+            const w = whispers.find(x => x.id === id);
+            if (!w || w.isCanon) return;
+
+            w.amplifies++;
+            dailyAmplifies.count--;
+
+            const required = 12 + (whispers.filter(x => x.isCanon).length * 4);
+            if (w.amplifies >= required) {
+                w.isCanon = true;
+                triggerCanonEffect();
+            } else {
+                const btn = document.querySelector(`[data-whisper-id="${id}"]`);
+                if (btn) {
+                    const flash = document.createElement('span');
+                    flash.textContent = '+1';
+                    flash.style.cssText = 'position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:bold;color:#f59e0b;pointer-events:none;animation:ampFloat 0.7s ease-out forwards';
+                    btn.style.position = 'relative';
+                    btn.appendChild(flash);
+                    setTimeout(() => flash.remove(), 700);
+                }
+            }
+
+            saveCummandments();
+            saveAmplifies();
+            updateAmplifyCount();
+            renderWhispers();
+            trackRite('amplify_local', 1);
+        }
+
+        function renderWhispers() {
+            if (!document.getElementById('ampFloatStyle')) {
+                const style = document.createElement('style');
+                style.id = 'ampFloatStyle';
+                style.textContent = '@keyframes ampFloat { 0% { opacity:1; transform:translateX(-50%) translateY(0); } 100% { opacity:0; transform:translateX(-50%) translateY(-24px); } }';
+                document.head.appendChild(style);
+            }
+            const container = document.getElementById('whispers-feed');
+            const empty = document.getElementById('whispers-empty');
+            container.innerHTML = '';
+
+            if (!whispers.length) {
+                if (empty) empty.classList.remove('hidden');
+                return;
+            }
+            if (empty) empty.classList.add('hidden');
+
+            const totalCanon = whispers.filter(x => x.isCanon).length;
+            whispers.forEach(w => {
+                const required = 12 + (w.isCanon ? 0 : totalCanon * 4);
+                const pct = w.isCanon ? 100 : Math.min(100, Math.round((w.amplifies / required) * 100));
+                const remaining = w.isCanon ? 0 : required - w.amplifies;
+
+                const div = document.createElement('div');
+                div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
+                const name = w.username || 'Anonymous Degen';
+                const badge = w.isCanon
+                    ? `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">LOCAL CANON</span>`
+                    : '';
+                const buttonClass = w.isCanon ? 'opacity-50 cursor-not-allowed' : 'hover:bg-amber-400/10 cursor-pointer';
+                const buttonDisabled = w.isCanon ? 'disabled' : '';
+
+                const growthBar = w.isCanon
+                    ? `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Ascended on your tablets</span><span>✦</span></div>`
+                    : `<div class="mt-3">
+                           <div class="mb-1 flex justify-between text-[11px] text-zinc-500">
+                               <span>${w.amplifies} amplifies</span>
+                               <span>${remaining} until LOCAL CANON</span>
+                           </div>
+                           <div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+                               <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400 transition-all duration-500"></div>
+                           </div>
+                       </div>`;
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-3 gap-2">
+                        <span class="font-semibold">${escapeHtml(name)}</span>
+                        ${badge}
+                        <button data-whisper-id="${w.id}" onclick="amplifyWhisper(${w.id})" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 ${buttonClass}" ${buttonDisabled}>
+                            Amplify (${w.amplifies})
+                        </button>
+                    </div>
+                    <p class="text-zinc-200">${escapeHtml(w.message)}</p>
+                    ${growthBar}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function initCummandments() {
+            loadCummandments();
+            updateAmplifyCount();
+            renderWhispers();
+            updateUsernameDisplay();
+        }
+
+        // ==================== DAILY RITE + PROPHECY ====================
+        function todayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function yesterdayKey() {
+            const d = new Date();
+            d.setDate(d.getDate() - 1);
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function dayIndex(dateStr) {
+            const [y, m, day] = dateStr.split('-').map(Number);
+            const start = new Date(y, 0, 0);
+            const now = new Date(y, m - 1, day);
+            return Math.floor((now - start) / 86400000);
+        }
+
+        function loadRiteState() {
+            const today = todayKey();
+            let raw = null;
+            try { raw = JSON.parse(localStorage.getItem(RITE_KEY) || 'null'); } catch { raw = null; }
+
+            if (raw && raw.day === today) {
+                riteState = raw;
+                return riteState;
+            }
+
+            const type = RITE_TYPES[dayIndex(today) % RITE_TYPES.length];
+            const totalRites = (raw && raw.totalRites) || 0;
+            const lastCompletedDay = (raw && raw.lastCompletedDay) || null;
+            // Keep streak visible only if you completed yesterday (or somehow today)
+            let streak = 0;
+            if (lastCompletedDay === yesterdayKey() || lastCompletedDay === today) {
+                streak = (raw && raw.streak) || 0;
+            }
+
+            riteState = {
+                day: today,
+                typeId: type.id,
+                progress: 0,
+                completed: false,
+                streak,
+                lastCompletedDay,
+                totalRites
+            };
+            saveRiteState();
+            return riteState;
+        }
+
+        function saveRiteState() {
+            if (riteState) localStorage.setItem(RITE_KEY, JSON.stringify(riteState));
+        }
+
+        function currentRiteType() {
+            if (!riteState) loadRiteState();
+            return RITE_TYPES.find(t => t.id === riteState.typeId) || RITE_TYPES[0];
+        }
+
+        function updateRiteUI() {
+            if (!riteState) loadRiteState();
+            const type = currentRiteType();
+            const title = document.getElementById('rite-title');
+            const desc = document.getElementById('rite-desc');
+            const streakEl = document.getElementById('rite-streak');
+            const gameStreak = document.getElementById('game-streak');
+            const progLabel = document.getElementById('rite-progress-label');
+            const statusLabel = document.getElementById('rite-status-label');
+            const bar = document.getElementById('rite-progress-bar');
+            const hint = document.getElementById('rite-hint');
+
+            if (title) title.textContent = type.title;
+            if (desc) desc.textContent = type.desc;
+            if (streakEl) streakEl.textContent = String(riteState.streak || 0);
+            if (gameStreak) gameStreak.textContent = String(riteState.streak || 0);
+
+            const progress = riteState.completed ? type.target : Math.min(riteState.progress, type.target);
+            const pct = Math.min(100, Math.round((progress / type.target) * 100));
+            if (progLabel) progLabel.textContent = `${progress} / ${type.target}`;
+            if (bar) bar.style.width = `${pct}%`;
+
+            if (riteState.completed) {
+                if (statusLabel) statusLabel.textContent = 'Rite complete ✦';
+                if (hint) hint.textContent = `Streak ${riteState.streak}. Return tomorrow. Missing a day is fasting — not death.`;
+            } else {
+                if (statusLabel) statusLabel.textContent = 'In progress';
+                if (hint) {
+                    const fasting = !riteState.lastCompletedDay || (riteState.lastCompletedDay !== yesterdayKey() && riteState.lastCompletedDay !== todayKey());
+                    hint.textContent = fasting && riteState.streak === 0 && riteState.totalRites > 0
+                        ? `${type.hint} You fasted. Complete today's rite to light the streak again.`
+                        : type.hint;
+                }
+            }
+            updateProphecyUI();
+        }
+
+        function trackRite(action, amount = 1) {
+            if (!riteState) loadRiteState();
+            if (riteState.completed) return;
+            const type = currentRiteType();
+            if (type.action !== action) return;
+
+            riteState.progress = Math.min(type.target, (riteState.progress || 0) + amount);
+            if (riteState.progress >= type.target) {
+                completeRite();
+            } else {
+                saveRiteState();
+                updateRiteUI();
+            }
+        }
+
+        function completeRite() {
+            if (!riteState || riteState.completed) return;
+            const today = todayKey();
+            const yday = yesterdayKey();
+
+            if (riteState.lastCompletedDay === yday) {
+                riteState.streak = (riteState.streak || 0) + 1;
+            } else if (riteState.lastCompletedDay === today) {
+                // already counted
+            } else {
+                riteState.streak = 1; // restart after fast
+            }
+
+            riteState.completed = true;
+            riteState.progress = currentRiteType().target;
+            riteState.lastCompletedDay = today;
+            riteState.totalRites = (riteState.totalRites || 0) + 1;
+            saveRiteState();
+            updateRiteUI();
+            showRankUpToast(`Rite · ${riteState.streak}d streak`);
+            sfx('rite');
+            // soft nudge to refresh public claim stats
+            if (typeof updateClaimUI === 'function') updateClaimUI();
+        }
+
+        function updateProphecyUI() {
+            const section = document.getElementById('prophecy-section');
+            if (!section) return;
+
+            const disciplePlus = isSanctumComplete();
+            section.classList.toggle('hidden', !disciplePlus);
+            if (!disciplePlus) return;
+
+            if (!riteState) loadRiteState();
+            const total = riteState.totalRites || 0;
+            const unlocked = MYTH.prophecy.filter(v => total >= v.needRites);
+            const list = document.getElementById('prophecy-list');
+            const prog = document.getElementById('prophecy-progress');
+            const note = document.getElementById('prophecy-locked-note');
+
+            if (prog) prog.textContent = `${unlocked.length} / ${MYTH.prophecy.length} verses`;
+            if (list) {
+                list.innerHTML = MYTH.prophecy.map(v => {
+                    const open = total >= v.needRites;
+                    if (open) {
+                        return `<li class="rounded-2xl border border-amber-500/25 bg-amber-500/5 px-5 py-4">
+                            <div class="text-xs font-semibold uppercase tracking-wider text-amber-400 mb-1">${escapeHtml(v.title)}</div>
+                            <p class="text-sm text-zinc-300 leading-relaxed">${escapeHtml(v.text)}</p>
+                        </li>`;
+                    }
+                    return `<li class="rounded-2xl border border-zinc-800 bg-zinc-900/50 px-5 py-4 text-sm text-zinc-600">
+                        Locked · complete ${v.needRites} daily rite${v.needRites > 1 ? 's' : ''} total (you have ${total})
+                    </li>`;
+                }).join('');
+            }
+            if (note) note.classList.toggle('hidden', unlocked.length > 0);
+        }
+
+        // ==================== GAME ====================
+        function updateGameDisplay() {
+            const scoreEl = document.getElementById('game-score');
+            const comboEl = document.getElementById('game-combo');
+            if (scoreEl) scoreEl.textContent = gameScore;
+            if (comboEl) comboEl.textContent = `${gameCombo}x`;
+            const streakEl = document.getElementById('game-streak');
+            if (streakEl && riteState) streakEl.textContent = String(riteState.streak || 0);
+        }
+
+        function persistThickness() {
+            localStorage.setItem(THICKNESS_KEY, String(gameScore));
+        }
+
+        function biteCheese() {
+            gameScore += Math.floor(Math.random() * 5) + 1;
+            gameCombo++;
+            persistThickness();
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => { gameCombo = 0; updateGameDisplay(); }, 5000);
+
+            const cheese = document.getElementById('hero-cheese');
+            const rect = cheese.getBoundingClientRect();
+            createCheeseClickBurst(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+            cheese.style.transform = 'scale(0.95)';
+            setTimeout(() => { cheese.style.transform = 'scale(1)'; }, 100);
+            updateGameDisplay();
+            sfx('bite');
+            trackRite('bites', 1);
+        }
+
+        function sendIt() {
+            const messages = [
+                '🚀 SENT IT! TO THE MOON!',
+                '💎 DIAMOND HANDS ENGAGED',
+                '🧀 CHONKY POWER ACTIVATED',
+                '📈 CHART GOES BRRRRR',
+                "🎯 CHONK'D THE MOMENTUM"
+            ];
+            const msg = document.createElement('div');
+            msg.textContent = messages[Math.floor(Math.random() * messages.length)];
+            msg.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#ef4444;color:white;padding:20px 40px;border-radius:20px;font-weight:bold;font-size:20px;z-index:10000;box-shadow:0 0 40px rgba(239, 68, 68, 0.8);animation:popIn 0.4s ease-out;border:3px solid #dc2626`;
+            document.body.appendChild(msg);
+            if (!document.getElementById('popInStyle')) {
+                const style = document.createElement('style');
+                style.id = 'popInStyle';
+                style.textContent = `@keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { transform: translate(-50%, -50%) scale(1.1); } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }`;
+                document.head.appendChild(style);
+            }
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const confetto = document.createElement('div');
+                    confetto.style.cssText = `position:fixed;left:${50 + (Math.random() - 0.5) * 40}vw;top:${50 + (Math.random() - 0.5) * 30}vh;width:${4 + Math.random() * 8}px;height:${4 + Math.random() * 8}px;border-radius:50%;background:${['#ef4444', '#f87171', '#fca5a5'][Math.floor(Math.random() * 3)]};z-index:9999;pointer-events:none`;
+                    document.body.appendChild(confetto);
+                    confetto.animate([{ transform: 'translateY(0) rotate(0deg)', opacity: 1 }, { transform: `translateY(${Math.random() * 400 - 200}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }], { duration: 1200 + Math.random() * 800 }).onfinish = () => confetto.remove();
+                }, i * 20);
+            }
+            setTimeout(() => msg.remove(), 2500);
+            trackRite('send_it', 1);
+        }
+
+        function generateCopium() {
+            const copiumMessages = [
+                'HODL IS THE WAY 🙏',
+                'Market is irrational, we are rational ✨',
+                'This is just consolidation 📊',
+                'Whales are accumulating 🐳',
+                'The technicals look bullish from a certain angle 📈',
+                'Actually, being down 90% is a great opportunity 💡',
+                'This coin is undervalued at ANY price 🚀',
+                'The sacred texts predicted this dip 📿',
+                'If you zoom out far enough, the chart is green ✅',
+                'Paper hands panic, diamond hands accumulate 💎',
+                'This is where the real wealth is made 🏆',
+                'Buy the dip, this is financial advice',
+                "My grandma's brother's cousin got rich on this",
+                'Not financial advice but... CHONK > BTC',
+                'Infinite copium is the sacrament, not the cope'
+            ];
+            const copium = copiumMessages[Math.floor(Math.random() * copiumMessages.length)];
+            const msg = document.createElement('div');
+            msg.textContent = copium;
+            msg.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;padding:15px 30px;border-radius:20px;font-weight:bold;font-size:16px;z-index:10000;box-shadow:0 0 30px rgba(102, 126, 234, 0.6);border:2px solid #a78bfa;max-width:80vw;text-align:center;animation:slideUp 0.4s ease-out`;
+            document.body.appendChild(msg);
+            if (!document.getElementById('slideUpStyle')) {
+                const style = document.createElement('style');
+                style.id = 'slideUpStyle';
+                style.textContent = `@keyframes slideUp { from { transform: translateX(-50%) translateY(100px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }`;
+                document.head.appendChild(style);
+            }
+            setTimeout(() => {
+                msg.style.animation = 'slideUp 0.4s ease-out reverse';
+                setTimeout(() => msg.remove(), 400);
+            }, 3000);
+            trackRite('copium', 1);
+        }
+
+        function resetProgress() {
+            if (confirm('Clear all progress? This cannot be undone.')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                location.reload();
+            }
+        }
+
+        // ==================== SECRETS (Saint path = old sequence after Disciple) ====================
+        let logoClicks = 0;
+        let logoClickTimeout;
+
+        function setupSecrets() {
+            const logoElement = document.querySelector('.logo-font');
+            if (logoElement) {
+                logoElement.addEventListener('click', () => {
+                    logoClicks++;
+                    clearTimeout(logoClickTimeout);
+                    logoClickTimeout = setTimeout(() => { logoClicks = 0; }, 2000);
+                    if (logoClicks === 5) {
+                        triggerLogoEasterEgg();
+                        logoClicks = 0;
+                    }
+                });
+            }
+
+            const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+            let konamiIndex = 0;
+
+            document.addEventListener('keydown', (e) => {
+                const key = e.key.startsWith('Arrow') ? e.key : e.key.toLowerCase();
+                if (key === konamiCode[konamiIndex]) {
+                    konamiIndex++;
+                    if (konamiIndex === konamiCode.length) {
+                        triggerKonamiPath();
+                        konamiIndex = 0;
+                    }
+                } else if (key !== konamiCode[konamiIndex]) {
+                    konamiIndex = 0;
+                }
+            });
+        }
+
+        function triggerLogoEasterEgg() {
+            const logoElement = document.querySelector('.logo-font');
+            if (!logoElement) return;
+            logoElement.style.animation = 'none';
+            setTimeout(() => { logoElement.style.animation = 'spin 0.8s ease-in-out'; }, 10);
+
+            const msg = document.createElement('div');
+            if (isSanctumComplete() && !isForbiddenUnlocked()) {
+                msg.textContent = '🧀 Close. Saints walk a longer sequence than five clicks.';
+            } else if (isForbiddenUnlocked()) {
+                msg.textContent = '🧀 The cheese already knows your name, Saint.';
+            } else {
+                msg.textContent = '🎉 You found a hidden CHONKY. The myth runs deeper than this.';
+            }
+            msg.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#f59e0b;color:#09090b;padding:20px 40px;border-radius:20px;font-weight:bold;font-size:16px;z-index:10000;box-shadow:0 0 30px rgba(245, 158, 11, 0.8);max-width:90vw;text-align:center';
+            document.body.appendChild(msg);
+
+            if (!document.getElementById('spinStyle')) {
+                const style = document.createElement('style');
+                style.id = 'spinStyle';
+                style.textContent = '@keyframes spin { 0% { transform: rotateZ(0deg); } 50% { transform: rotateZ(180deg) scale(1.2); } 100% { transform: rotateZ(360deg); } }';
+                document.head.appendChild(style);
+            }
+            setTimeout(() => msg.remove(), 3200);
+        }
+
+        function triggerKonamiPath() {
+            if (isSanctumComplete()) {
+                unlockForbiddenPath();
+                return;
+            }
+
+            const msg = document.createElement('div');
+            msg.textContent = '🎮 The old sequence answers — but the Sanctum has not recognized you yet.';
+            msg.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fbbf24;color:#09090b;padding:16px 28px;border-radius:20px;font-weight:bold;font-size:15px;z-index:10000;box-shadow:0 0 30px rgba(251, 191, 36, 0.8);max-width:90vw;text-align:center';
+            document.body.appendChild(msg);
+
+            const cheese = document.getElementById('hero-cheese');
+            if (cheese && discovered.size >= 3) {
+                createCheeseClickBurst(
+                    cheese.getBoundingClientRect().left + cheese.offsetWidth / 2,
+                    cheese.getBoundingClientRect().top + cheese.offsetHeight / 2
+                );
+            }
+            setTimeout(() => msg.remove(), 4000);
+        }
+
+        // ==================== PUBLIC FLEX ====================
+        function copyField(elementId, btn) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const text = (el.value || el.textContent || '').trim();
+
+            // Always select so user can also ⌘C manually
+            el.focus();
+            if (typeof el.select === 'function') {
+                el.select();
+                el.setSelectionRange(0, text.length);
+            }
+
+            let ok = false;
+            try {
+                ok = document.execCommand('copy');
+            } catch (_) {
+                ok = false;
+            }
+
+            if (!ok && navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    flashCopied(btn);
+                }).catch(() => {
+                    // Last resort: leave text selected for manual ⌘C
+                    if (btn) {
+                        btn.textContent = 'Press ⌘C';
+                        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+                    }
+                });
+                if (ok) flashCopied(btn);
+                return;
+            }
+
+            if (ok) flashCopied(btn);
+            else if (btn) {
+                btn.textContent = 'Press ⌘C';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+            }
+        }
+
+        function flashCopied(btn) {
+            if (!btn) return;
+            const prev = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = prev || 'Copy'; }, 1500);
+        }
+
+        function setCultStatus(online) {
+            const dot = document.getElementById('cult-status-dot');
+            const text = document.getElementById('cult-status-text');
+            const note = document.getElementById('wall-mode-note');
+            const banner = document.getElementById('public-offline-banner');
+            if (dot) dot.className = `h-1.5 w-1.5 rounded-full ${online ? 'bg-emerald-400' : 'bg-zinc-600'}`;
+            if (text) {
+                text.textContent = online ? 'Cult live' : 'Solo';
+                text.className = online ? 'text-emerald-400/90' : 'text-zinc-500';
+            }
+            if (note) {
+                note.textContent = online
+                    ? 'Connected to the cult server. Publishes are shared on this host.'
+                    : 'Offline / solo mode — start server.py for a real public wall.';
+            }
+            if (banner) banner.classList.toggle('hidden', online);
+        }
+
+        function updateClaimUI() {
+            const status = document.getElementById('claim-status');
+            const btn = document.getElementById('claim-btn');
+            if (!status || !btn) return;
+
+            const cult = window.ChonkyPublic && ChonkyPublic.PublicCult;
+            const localClaim = cult ? cult.getLocalClaim() : null;
+            const canClaim = isSanctumComplete() && discovered.size >= 7;
+
+            if (!cult || !cult.online) {
+                status.textContent = 'Connect the cult server to claim a public title.';
+                btn.disabled = true;
+                btn.className = 'w-full rounded-2xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-500 cursor-not-allowed';
+                btn.textContent = 'Server offline';
+                return;
+            }
+
+            if (localClaim) {
+                status.innerHTML = `You are public as <span class="text-amber-300 font-semibold">${escapeHtml(localClaim.name)}</span> · <span class="uppercase tracking-wider text-amber-400/90">${escapeHtml(localClaim.rank)}</span>. Re-claim to update rank.`;
+            } else if (canClaim) {
+                status.textContent = `Ready. Claim as ${username || 'Degen'} (${currentRank.label}).`;
+            } else {
+                status.textContent = 'Complete the Sanctum trials first. Disciples and Saints only.';
+            }
+
+            btn.disabled = !canClaim;
+            btn.className = canClaim
+                ? 'w-full rounded-2xl bg-amber-400 px-4 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-300'
+                : 'w-full rounded-2xl bg-zinc-800 px-4 py-2.5 text-sm font-semibold text-zinc-500 cursor-not-allowed';
+            btn.textContent = localClaim ? 'Update Public Title' : 'Claim Title';
+        }
+
+        function renderPublicWhispers() {
+            const cult = ChonkyPublic.PublicCult;
+            const container = document.getElementById('public-whispers-feed');
+            const empty = document.getElementById('public-whispers-empty');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const list = cult.whispers || [];
+            if (!list.length) {
+                if (empty) empty.classList.remove('hidden');
+                return;
+            }
+            if (empty) empty.classList.add('hidden');
+
+            const totalCanon = list.filter(x => x.isCanon).length;
+            list.forEach(w => {
+                const required = 12 + (w.isCanon ? 0 : totalCanon * 4);
+                const pct = w.isCanon ? 100 : Math.min(100, Math.round((w.amplifies / Math.max(required, 1)) * 100));
+                const remaining = w.isCanon ? 0 : Math.max(0, required - w.amplifies);
+                const div = document.createElement('div');
+                div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
+                const name = w.username || 'Anonymous Degen';
+                const badge = w.isCanon
+                    ? `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">CANON</span>`
+                    : '';
+                const growthBar = w.isCanon
+                    ? `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Ascended to public canon</span><span>✦</span></div>`
+                    : `<div class="mt-3">
+                           <div class="mb-1 flex justify-between text-[11px] text-zinc-500">
+                               <span>${w.amplifies} amplifies</span>
+                               <span>${remaining} until CANON</span>
+                           </div>
+                           <div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
+                               <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400"></div>
+                           </div>
+                       </div>`;
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-3 gap-2 flex-wrap">
+                        <span class="font-semibold">${escapeHtml(name)}</span>
+                        ${badge}
+                        <button onclick="amplifyPublicWhisper('${w.id}')" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 hover:bg-amber-400/10 ${w.isCanon ? 'opacity-40 cursor-not-allowed' : ''}" ${w.isCanon ? 'disabled' : ''}>
+                            Amplify (${w.amplifies})
+                        </button>
+                    </div>
+                    <p class="text-zinc-200">${escapeHtml(w.message)}</p>
+                    ${growthBar}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderSaints() {
+            const cult = ChonkyPublic.PublicCult;
+            const list = document.getElementById('saints-list');
+            const empty = document.getElementById('saints-empty');
+            if (!list) return;
+            list.innerHTML = '';
+            const saints = sortedSaints(cult.saints || []);
+            if (!saints.length) {
+                if (empty) empty.classList.remove('hidden');
+                return;
+            }
+            if (empty) empty.classList.add('hidden');
+            saints.forEach((s, i) => {
+                const row = document.createElement('div');
+                row.className = 'rounded-2xl border border-zinc-800 bg-zinc-950/60 px-3 py-2.5 text-sm';
+                const rankColor = s.rank === 'saint' ? 'text-yellow-200' : s.rank === 'disciple' ? 'text-amber-300' : 'text-zinc-400';
+                row.innerHTML = `
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-medium text-zinc-200 truncate"><span class="text-zinc-600 mr-1">${i + 1}.</span>${escapeHtml(s.name)}</span>
+                        <span class="text-[10px] uppercase tracking-[0.15em] ${rankColor}">${escapeHtml(s.rank)}</span>
+                    </div>
+                    <div class="mt-1 flex flex-wrap gap-x-3 text-[10px] text-zinc-500">
+                        <span>Thickness ${s.thickness || 0}</span>
+                        <span>Streak ${s.streak || 0}d</span>
+                        <span>Rites ${s.ritesCompleted || 0}</span>
+                    </div>
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        async function refreshPublicWall() {
+            const cult = ChonkyPublic.PublicCult;
+            const online = await cult.probe();
+            setCultStatus(online);
+            if (!online) {
+                document.getElementById('public-amplifies-left').textContent = '—';
+                updateClaimUI();
+                return;
+            }
+            try {
+                await cult.refreshWhispers();
+                await cult.refreshSaints();
+                renderPublicWhispers();
+                renderSaints();
+                const leftEl = document.getElementById('public-amplifies-left');
+                if (leftEl) leftEl.textContent = String(cult.amplifiesLeft);
+            } catch (e) {
+                console.warn(e);
+            }
+            updateClaimUI();
+        }
+
+        async function submitPublicWhisper() {
+            const cult = ChonkyPublic.PublicCult;
+            if (!cult.online) {
+                alert('Cult server offline. Run python3 server.py and open via http://127.0.0.1:8787');
+                return;
+            }
+            if (discovered.size < 7) {
+                alert('Soft gate: discover all 7 fragments before publishing.');
+                return;
+            }
+            const input = document.getElementById('public-whisper-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const sign = document.getElementById('sign-public-whisper').checked;
+            try {
+                await cult.postWhisper({
+                    message: text,
+                    username: sign ? (username || 'Degen') : null,
+                    fragments: discovered.size,
+                });
+                input.value = '';
+                await cult.refreshWhispers();
+                renderPublicWhispers();
+            } catch (e) {
+                alert(e.body && e.body.error ? e.body.error : e.message);
+            }
+        }
+
+        async function amplifyPublicWhisper(id) {
+            const cult = ChonkyPublic.PublicCult;
+            if (!cult.online) {
+                alert('Cult server offline.');
+                return;
+            }
+            try {
+                const data = await cult.amplify(id);
+                if (data.becameCanon && typeof triggerCanonEffect === 'function') {
+                    triggerCanonEffect();
+                }
+                await cult.refreshWhispers();
+                renderPublicWhispers();
+                const leftEl = document.getElementById('public-amplifies-left');
+                if (leftEl && typeof data.amplifiesLeft === 'number') {
+                    leftEl.textContent = String(data.amplifiesLeft);
+                }
+                trackRite('amplify_public', 1);
+            } catch (e) {
+                const code = e.body && e.body.error;
+                if (code === 'no_amplifies_left') alert('No public amplifies left today.');
+                else if (code === 'already_amplified') alert('You already amplified this whisper today.');
+                else alert(code || e.message);
+            }
+        }
+
+        function setSaintsSort(mode) {
+            saintsSort = mode;
+            document.querySelectorAll('.saints-sort-btn').forEach(btn => {
+                const active = btn.getAttribute('data-saints-sort') === mode;
+                btn.className = active
+                    ? 'saints-sort-btn rounded-full border border-amber-400/50 bg-amber-400/10 px-2.5 py-1 text-[11px] text-amber-200'
+                    : 'saints-sort-btn rounded-full border border-zinc-700 px-2.5 py-1 text-[11px] text-zinc-400';
+            });
+            renderSaints();
+        }
+
+        function sortedSaints(list) {
+            const rankWeight = { saint: 0, disciple: 1, believer: 2 };
+            const arr = [...(list || [])];
+            if (saintsSort === 'thickness') {
+                arr.sort((a, b) => (b.thickness || 0) - (a.thickness || 0) || (b.streak || 0) - (a.streak || 0));
+            } else if (saintsSort === 'streak') {
+                arr.sort((a, b) => (b.streak || 0) - (a.streak || 0) || (b.thickness || 0) - (a.thickness || 0));
+            } else {
+                arr.sort((a, b) =>
+                    (rankWeight[a.rank] ?? 9) - (rankWeight[b.rank] ?? 9) ||
+                    (b.thickness || 0) - (a.thickness || 0) ||
+                    (a.claimedAt || '').localeCompare(b.claimedAt || '')
+                );
+            }
+            return arr;
+        }
+
+        async function claimPublicTitle() {
+            const cult = ChonkyPublic.PublicCult;
+            if (!cult.online) {
+                alert('Cult server offline.');
+                return;
+            }
+            if (!isSanctumComplete() || discovered.size < 7) {
+                alert('Claim requires Disciple+: 7 fragments + sanctum complete.');
+                return;
+            }
+            if (!riteState) loadRiteState();
+            try {
+                await cult.claimTitle({
+                    name: username || 'Degen',
+                    rank: currentRank.id,
+                    fragments: discovered.size,
+                    sanctum: isSanctumComplete(),
+                    forbidden: isForbiddenUnlocked(),
+                    thickness: gameScore,
+                    streak: riteState.streak || 0,
+                    ritesCompleted: riteState.totalRites || 0,
+                });
+                await cult.refreshSaints();
+                renderSaints();
+                updateClaimUI();
+                showRankUpToast('Public: ' + (username || 'Degen'));
+            } catch (e) {
+                alert(e.body && e.body.error ? e.body.error : e.message);
+            }
+        }
+
+        let relicCanvasRef = null;
+
+        function openRelicModal() {
+            const modal = document.getElementById('relic-modal');
+            const canvas = document.getElementById('relic-canvas');
+            if (!modal || !canvas || !window.ChonkyPublic) return;
+            if (!riteState) loadRiteState();
+            const drawn = ChonkyPublic.drawRelicCard({
+                name: username || 'Anonymous Degen',
+                rank: currentRank.label,
+                fragments: discovered.size,
+                sanctum: isSanctumComplete(),
+                forbidden: isForbiddenUnlocked(),
+                score: gameScore,
+                streak: riteState.streak || 0,
+            });
+            const ctx = canvas.getContext('2d');
+            canvas.width = drawn.width;
+            canvas.height = drawn.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(drawn, 0, 0);
+            relicCanvasRef = canvas;
+            document.getElementById('relic-feedback').textContent = '';
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRelicModal() {
+            const modal = document.getElementById('relic-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function downloadRelic() {
+            if (!relicCanvasRef) openRelicModal();
+            if (!relicCanvasRef) return;
+            const safe = (username || 'degen').replace(/[^\w\-]+/g, '_').slice(0, 24);
+            ChonkyPublic.downloadCanvas(relicCanvasRef, `chonky-relic-${safe}-${currentRank.id}.png`);
+            document.getElementById('relic-feedback').textContent = 'PNG downloaded. Post it. Become the myth.';
+        }
+
+        async function copyRelicCaption() {
+            const text = ChonkyPublic.shareCaption({
+                name: username || 'Anonymous Degen',
+                rank: currentRank.label,
+            });
+            try {
+                await navigator.clipboard.writeText(text);
+                document.getElementById('relic-feedback').textContent = 'Caption copied. Paste into CT.';
+            } catch {
+                prompt('Copy this caption:', text);
+            }
+        }
+
+        // ==================== CRAFT: SOUND + ENTRY ====================
+        const SOUND_KEY = 'chonky_sound_on';
+        let soundOn = localStorage.getItem(SOUND_KEY) === 'true';
+        let audioCtx = null;
+
+        function ensureAudio() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                audioCtx = new AC();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playTone({ freq = 440, dur = 0.08, type = 'sine', gain = 0.04, slide = 0 }) {
+            if (!soundOn) return;
+            const ctx = ensureAudio();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            if (slide) osc.frequency.linearRampToValueAtTime(freq + slide, ctx.currentTime + dur);
+            g.gain.setValueAtTime(gain, ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+            osc.connect(g);
+            g.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + dur + 0.02);
+        }
+
+        function sfx(kind) {
+            if (!soundOn) return;
+            if (kind === 'bite') playTone({ freq: 180, dur: 0.06, type: 'triangle', gain: 0.05, slide: -40 });
+            else if (kind === 'unlock') {
+                playTone({ freq: 320, dur: 0.1, type: 'sine', gain: 0.045 });
+                setTimeout(() => playTone({ freq: 480, dur: 0.12, type: 'sine', gain: 0.04 }), 70);
+            }
+            else if (kind === 'canon') {
+                playTone({ freq: 220, dur: 0.15, type: 'sawtooth', gain: 0.03 });
+                setTimeout(() => playTone({ freq: 330, dur: 0.2, type: 'sine', gain: 0.05 }), 90);
+                setTimeout(() => playTone({ freq: 440, dur: 0.25, type: 'sine', gain: 0.04 }), 180);
+            }
+            else if (kind === 'rite') {
+                playTone({ freq: 360, dur: 0.12, type: 'sine', gain: 0.05 });
+                setTimeout(() => playTone({ freq: 540, dur: 0.18, type: 'triangle', gain: 0.04 }), 100);
+            }
+            else if (kind === 'enter') {
+                playTone({ freq: 140, dur: 0.2, type: 'sine', gain: 0.035, slide: 80 });
+            }
+            else if (kind === 'ui') playTone({ freq: 520, dur: 0.04, type: 'sine', gain: 0.025 });
+        }
+
+        function updateSoundToggleUI() {
+            const btn = document.getElementById('sound-toggle');
+            if (!btn) return;
+            btn.textContent = soundOn ? 'Sound: On' : 'Sound: Off';
+            btn.classList.toggle('text-amber-300', soundOn);
+            btn.classList.toggle('border-amber-400/40', soundOn);
+        }
+
+        function toggleSound() {
+            soundOn = !soundOn;
+            localStorage.setItem(SOUND_KEY, soundOn ? 'true' : 'false');
+            if (soundOn) {
+                ensureAudio();
+                sfx('ui');
+            }
+            updateSoundToggleUI();
+        }
+
+        function crossThreshold() {
+            const veil = document.getElementById('entry-veil');
+            if (!veil) return;
+            sfx('enter');
+            veil.classList.add('hidden-veil');
+            sessionStorage.setItem('chonky_entered', '1');
+        }
+
+        function maybeShowVeil() {
+            const veil = document.getElementById('entry-veil');
+            if (!veil) return;
+            // Skip veil on same-session navigations / reloads after enter
+            if (sessionStorage.getItem('chonky_entered') === '1') {
+                veil.classList.add('hidden-veil');
+            }
+        }
+
+        // ==================== INIT ====================
+        async function init() {
+            maybeShowVeil();
+            updateSoundToggleUI();
+            loadDiscoveredLore();
+            loadConfessional();
+            loadRiteState();
+            initLoreSpots();
+            initCheeseParticles();
+            initCummandments();
+            renderConfessional();
+            setupSecrets();
+            updateRiteUI();
+            updateGameDisplay();
+            updateRankUI();
+
+            const form = document.getElementById('chat-form');
+            if (form) form.addEventListener('submit', sendConfession);
+            updateUsernameDisplay();
+
+            if (window.ChonkyPublic) {
+                await refreshPublicWall();
+            } else {
+                setCultStatus(false);
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

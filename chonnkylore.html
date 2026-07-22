@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Inner Sanctum • Chonky Cheesus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background:
+                radial-gradient(ellipse 70% 45% at 50% -5%, rgba(245, 158, 11, 0.12), transparent 50%),
+                #09090b;
+            color: #fafafa;
+        }
+        .display-font {
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            letter-spacing: -0.04em;
+        }
+        .scripture {
+            font-family: 'IBM Plex Mono', ui-monospace, monospace;
+            letter-spacing: 0.12em;
+        }
+        .puzzle-answer {
+            transition: all 0.2s ease;
+        }
+        .puzzle-answer:hover:not(:disabled) {
+            background-color: #27272a;
+            transform: translateX(2px);
+        }
+        .wrong-answer {
+            animation: shake 0.35s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .section-reveal {
+            animation: section-up 0.55s ease both;
+        }
+        @keyframes section-up {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .section-reveal, .wrong-answer { animation: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="mx-auto max-w-5xl px-6 py-10 section-reveal">
+
+        <div class="mb-10 flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <div class="scripture text-[11px] uppercase text-amber-400">The Inner Sanctum</div>
+                <h1 class="display-font text-4xl font-bold">Prove you read the myth</h1>
+                <p id="gate-note" class="mt-2 text-sm text-zinc-500">Three trials. Literacy is belonging.</p>
+            </div>
+            <button onclick="window.location.href='newchonky.html'"
+                    class="rounded-2xl border border-zinc-700 bg-zinc-900 px-5 py-2.5 text-sm font-semibold hover:bg-zinc-800 transition-colors">
+                ← Return to Main Page
+            </button>
+        </div>
+
+        <div id="soft-gate" class="mb-8 hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-100/90">
+            <strong class="text-amber-300">Soft gate:</strong> You entered without all seven fragments on this device.
+            The trials still run — but the faithful collect the myth first.
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-5">
+
+            <div class="lg:col-span-3">
+                <div class="mb-6">
+                    <p class="text-xl text-amber-300">Few degens make it this far.</p>
+                    <p class="mt-2 text-zinc-400">These are not trivia. Cross the fragments. False prophets fail here.</p>
+                </div>
+
+                <div class="mb-6 flex items-center gap-x-3">
+                    <div class="text-sm font-medium">Progress</div>
+                    <div class="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-2 bg-amber-400 transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div id="progress-text" class="text-sm font-mono text-amber-400">0/3</div>
+                </div>
+
+                <div class="mb-6 rounded-3xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl shadow-black/20">
+                    <div class="mb-4">
+                        <span class="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-400">TRIAL 1</span>
+                        <h3 class="mt-2 text-xl font-semibold">The Genesis</h3>
+                        <p class="mt-1 text-sm text-zinc-400">How did Chonky Cheesus first enter the world?</p>
+                    </div>
+                    <div id="puzzle1" class="space-y-2">
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">A whitepaper and a fair launch on a Tuesday</button>
+                        <button type="button" data-correct="true" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Nacho cheese on a keyboard during a 47x long</button>
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">An influencer's secret alpha group</button>
+                    </div>
+                </div>
+
+                <div class="mb-6 rounded-3xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl shadow-black/20">
+                    <div class="mb-4">
+                        <span class="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-400">TRIAL 2</span>
+                        <h3 class="mt-2 text-xl font-semibold">Belief Without Intent</h3>
+                        <p class="mt-1 text-sm text-zinc-400">The first believer bought while stealing crumbs. What does the doctrine actually care about?</p>
+                    </div>
+                    <div id="puzzle2" class="space-y-2">
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Perfect entry timing and risk management</button>
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Having a thesis longer than three bullet points</button>
+                        <button type="button" data-correct="true" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">That you entered and stayed — not why you clicked</button>
+                    </div>
+                </div>
+
+                <div class="rounded-3xl border border-zinc-800 bg-zinc-900/90 p-6 shadow-xl shadow-black/20">
+                    <div class="mb-4">
+                        <span class="rounded-full bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-400">TRIAL 3</span>
+                        <h3 class="mt-2 text-xl font-semibold">The Final Paradox</h3>
+                        <p class="mt-1 text-sm text-zinc-400">$CHONK was never meant to make sense. According to the myth, what was it meant to do instead?</p>
+                    </div>
+                    <div id="puzzle3" class="space-y-2">
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Replace Bitcoin as sound money</button>
+                        <button type="button" data-correct="true" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Make you stay</button>
+                        <button type="button" data-correct="false" class="puzzle-answer w-full rounded-2xl bg-zinc-800 px-5 py-3 text-left text-sm">Ship real utility by Q3</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+                    <div class="mb-4 text-sm font-semibold text-amber-400">Hints from the spine</div>
+                    <ul class="space-y-3 text-sm text-zinc-400">
+                        <li>• Genesis is messy. Cheese, not a board deck.</li>
+                        <li>• The mouse proves intent is optional.</li>
+                        <li>• Copium is sacrament. Utility is a false prophet.</li>
+                        <li>• The Stay is the product wearing a coin costume.</li>
+                    </ul>
+                </div>
+
+                <div class="rounded-3xl border border-zinc-800 bg-zinc-900 p-6">
+                    <div class="mb-3 text-sm font-semibold text-amber-400">Your path</div>
+                    <div class="text-sm text-zinc-400 space-y-2">
+                        <div>Fragments held: <span id="frag-count" class="text-amber-400 font-mono">?/7</span></div>
+                        <div>Rank after trials: <span class="text-amber-300">Disciple</span></div>
+                        <div class="text-zinc-600 text-xs pt-1">Saint requires a secret on the main page — after you transcend.</div>
+                    </div>
+                </div>
+
+                <div id="final-reveal" class="hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6">
+                    <div class="mb-3 flex items-center gap-x-2 text-amber-400">
+                        <i class="fa-solid fa-check-circle"></i>
+                        <span class="font-semibold">You have transcended.</span>
+                    </div>
+                    <p class="text-lg leading-snug mb-3 display-font">
+                        Chonky Cheesus was never a coin.<br>
+                        He was a state of mind.
+                    </p>
+                    <p class="text-sm text-zinc-300 mb-4">
+                        Rank unlocked: <span class="text-amber-300 font-semibold">Disciple</span>.
+                        Return to the main room — the Doctrine is open.
+                    </p>
+                    <p class="text-xs text-zinc-500 mb-4 italic">
+                        Saints walk the old sequence. The arcade of the prophets still remembers.
+                    </p>
+                    <button onclick="window.location.href='newchonky.html'"
+                            class="w-full rounded-2xl bg-amber-400 px-4 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-300 transition-colors">
+                        Return transformed →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'chonky_lore_puzzles';
+        const LORE_KEY = 'chonky_lore_discovered';
+        const SANCTUM_KEY = 'sanctum_completed';
+        let completedPuzzles = new Set();
+        let confettiFired = false;
+
+        function saveProgress() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([...completedPuzzles]));
+        }
+
+        function loadProgress() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                completedPuzzles = new Set(JSON.parse(saved).map(Number));
+            }
+        }
+
+        function fragmentCount() {
+            try {
+                const saved = localStorage.getItem(LORE_KEY);
+                if (!saved) return 0;
+                return JSON.parse(saved).length;
+            } catch {
+                return 0;
+            }
+        }
+
+        function updateProgress() {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+            const percentage = (completedPuzzles.size / 3) * 100;
+
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${completedPuzzles.size}/3`;
+
+            if (completedPuzzles.size === 3) {
+                const reveal = document.getElementById('final-reveal');
+                reveal.classList.remove('hidden');
+                localStorage.setItem(SANCTUM_KEY, 'true');
+                if (!confettiFired) {
+                    confettiFired = true;
+                    triggerCompletionEffects();
+                }
+            }
+        }
+
+        function triggerCompletionEffects() {
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetto = document.createElement('div');
+                    confetto.style.cssText = `position:fixed;left:${Math.random()*100}vw;top:-20px;width:8px;height:8px;border-radius:50%;background:#f59e0b;z-index:9999;pointer-events:none`;
+                    document.body.appendChild(confetto);
+                    confetto.animate([
+                        { transform: 'translateY(0)', opacity: 1 },
+                        { transform: `translateY(${window.innerHeight + 100}px) rotate(${Math.random()*720}deg)`, opacity: 0 }
+                    ], { duration: 1800 + Math.random() * 1200 }).onfinish = () => confetto.remove();
+                }, i * 2);
+            }
+        }
+
+        function markPuzzleAsSolved(puzzleNumber) {
+            const puzzleContainer = document.getElementById(`puzzle${puzzleNumber}`);
+            const buttons = puzzleContainer.querySelectorAll('.puzzle-answer');
+
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.dataset.correct === 'true') {
+                    btn.classList.remove('bg-zinc-800');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    if (!btn.dataset.marked) {
+                        btn.innerHTML = `<span class="mr-2">✓</span> ${btn.textContent}`;
+                        btn.dataset.marked = '1';
+                    }
+                }
+            });
+        }
+
+        function checkAnswer(puzzleNumber, isCorrect, button) {
+            const puzzleContainer = document.getElementById(`puzzle${puzzleNumber}`);
+            const buttons = puzzleContainer.querySelectorAll('.puzzle-answer');
+
+            buttons.forEach(btn => { btn.disabled = true; });
+
+            if (isCorrect) {
+                button.classList.remove('bg-zinc-800');
+                button.classList.add('bg-emerald-600', 'text-white');
+                button.innerHTML = `<span class="mr-2">✓</span> Correct`;
+                button.dataset.marked = '1';
+
+                completedPuzzles.add(puzzleNumber);
+                saveProgress();
+                updateProgress();
+            } else {
+                button.classList.add('wrong-answer', 'bg-red-600');
+                const original = button.textContent;
+                button.innerHTML = `✗ Heresy`;
+
+                setTimeout(() => {
+                    buttons.forEach(btn => {
+                        if (!completedPuzzles.has(puzzleNumber)) {
+                            btn.disabled = false;
+                            btn.classList.remove('wrong-answer', 'bg-red-600');
+                            if (btn === button) btn.textContent = original;
+                        }
+                    });
+                }, 1800);
+            }
+        }
+
+        function wirePuzzles() {
+            for (let n = 1; n <= 3; n++) {
+                const container = document.getElementById(`puzzle${n}`);
+                container.querySelectorAll('.puzzle-answer').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (completedPuzzles.has(n)) return;
+                        checkAnswer(n, btn.dataset.correct === 'true', btn);
+                    });
+                });
+            }
+        }
+
+        function restorePuzzleState() {
+            completedPuzzles.forEach(puzzleNumber => {
+                markPuzzleAsSolved(puzzleNumber);
+            });
+            if (completedPuzzles.size === 3) confettiFired = true;
+            updateProgress();
+        }
+
+        function init() {
+            loadProgress();
+            wirePuzzles();
+            restorePuzzleState();
+
+            const count = fragmentCount();
+            const fragEl = document.getElementById('frag-count');
+            if (fragEl) fragEl.textContent = `${count}/7`;
+
+            if (count < 7) {
+                document.getElementById('soft-gate').classList.remove('hidden');
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

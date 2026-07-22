@@ -1,0 +1,17 @@
+# Permanent host on Render (free web service)
+# 1. Push this folder to GitHub
+# 2. render.com → New → Blueprint → select repo
+#    OR New → Web Service → connect repo manually
+services:
+  - type: web
+    name: chonky-cheesus
+    runtime: python
+    plan: free
+    buildCommand: "mkdir -p data"
+    startCommand: python3 server.py
+    healthCheckPath: /api/health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: CHONKY_DATA_DIR
+        value: /opt/render/project/src/data

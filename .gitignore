@@ -1,0 +1,6 @@
+data/cult_store.json
+data/*.tmp
+__pycache__/
+*.pyc
+.DS_Store
+.env
