@@ -31,11 +31,12 @@
   }
 
   function publicSiteUrl() {
+    // Share the Witness shell (simple entry); Sanctum is opt-in
     if (location.protocol === 'file:') {
-      return 'https://chonky-cheesus.onrender.com/newchonky.html';
+      return 'https://chonky-cheesus.onrender.com/';
     }
     const origin = location.origin || 'https://chonky-cheesus.onrender.com';
-    return origin.replace(/\/$/, '') + '/newchonky.html';
+    return origin.replace(/\/$/, '') + '/';
   }
 
   async function api(path, options = {}) {

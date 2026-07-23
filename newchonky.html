@@ -11,7 +11,7 @@
     <meta property="og:site_name" content="Chonky Cheesus">
     <meta property="og:title" content="Chonky Cheesus — Enter the cult of $CHONK">
     <meta property="og:description" content="Click the cheese. Unlock 7 fragments. Prove yourself in the Inner Sanctum. Never meant to make sense — meant to make you stay.">
-    <meta property="og:url" content="https://chonky-cheesus.onrender.com/newchonky.html">
+    <meta property="og:url" content="https://chonky-cheesus.onrender.com/">
     <meta property="og:image" content="https://chonky-cheesus.onrender.com/og-image.png">
     <meta property="og:image:secure_url" content="https://chonky-cheesus.onrender.com/og-image.png">
     <meta property="og:image:type" content="image/png">
@@ -264,10 +264,10 @@
             <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500">
                 <i class="fa-solid fa-cheese text-3xl text-zinc-950"></i>
             </div>
-            <div>
-                <div class="logo-font cursor-pointer text-3xl font-bold tracking-tighter">CHONKY</div>
+            <a href="index.html" class="hover:opacity-90 transition-opacity" title="Witness shell">
+                <div class="logo-font text-3xl font-bold tracking-tighter">CHONKY</div>
                 <div class="-mt-1 block text-xs font-mono text-amber-400">CHEESUS</div>
-            </div>
+            </a>
             <div id="rank-badge" class="ml-1 rounded-full border border-zinc-700 bg-zinc-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-400">
                 Degen
             </div>
@@ -464,7 +464,7 @@
                         <div class="mb-1 text-[11px] uppercase tracking-wider text-zinc-500">Public cult link</div>
                         <div class="flex gap-2">
                             <input id="copy-public-url" type="text" readonly
-                                value="https://chonky-cheesus.onrender.com/newchonky.html"
+                                value="https://chonky-cheesus.onrender.com/"
                                 onclick="this.select()"
                                 onfocus="this.select()"
                                 class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
@@ -1507,7 +1507,7 @@
         function copyPublicLink(btn) {
             const url = (window.ChonkyPublic && ChonkyPublic.publicSiteUrl)
                 ? ChonkyPublic.publicSiteUrl()
-                : 'https://chonky-cheesus.onrender.com/newchonky.html';
+                : 'https://chonky-cheesus.onrender.com/';
             const el = document.getElementById('copy-public-url');
             if (el) el.value = url;
             // Reuse copyField if element exists; else clipboard

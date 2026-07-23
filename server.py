@@ -440,12 +440,7 @@ class CultHandler(SimpleHTTPRequestHandler):
         parsed = urlparse(self.path)
         path = parsed.path.rstrip("/") or "/"
 
-        # Friendly entrypoints
-        if path in ("/", "/index.html", "/index"):
-            self.send_response(302)
-            self.send_header("Location", "/newchonky.html")
-            self.end_headers()
-            return
+        # / and /index.html served as Witness shell (index.html) by default
 
         if path == "/api/health":
             with LOCK:
