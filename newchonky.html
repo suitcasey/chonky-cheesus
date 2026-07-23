@@ -417,7 +417,7 @@
             <div class="text-sm font-semibold uppercase tracking-[3px] text-amber-400">Public Flex</div>
             <h2 class="mt-2 text-3xl font-black tracking-tighter">The Living Wall</h2>
             <p class="mt-2 text-zinc-400 max-w-xl mx-auto">
-                Soft-gated scripture. Anyone can read. Believers publish. The cult amplifies.
+                Whispers grow when amplified — and thin when ignored. Canon is forever.
                 <span id="wall-mode-note" class="block mt-1 text-zinc-500 text-sm">Checking cult server…</span>
             </p>
         </div>
@@ -1001,51 +1001,74 @@
             if (!document.getElementById('canonNotifStyle')) {
                 const style = document.createElement('style');
                 style.id = 'canonNotifStyle';
-                style.textContent = `@keyframes slideInRight { from { transform:translateX(120%); opacity:0; } to { transform:translateX(0); opacity:1; } } @keyframes slideOutRight { from { transform:translateX(0); opacity:1; } to { transform:translateX(120%); opacity:0; } }`;
+                style.textContent = `
+                  @keyframes canonPop { 0% { transform: translate(-50%,-50%) scale(0.6); opacity: 0; } 12% { transform: translate(-50%,-50%) scale(1.06); opacity: 1; } 100% { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+                  @keyframes canonFade { to { opacity: 0; transform: translate(-50%,-48%) scale(0.96); } }
+                  @keyframes canonFlash { 0% { opacity: 0; } 20% { opacity: 0.55; } 100% { opacity: 0; } }
+                `;
                 document.head.appendChild(style);
             }
+            // Full-viewport flash so it can't hide off-screen
+            const flash = document.createElement('div');
+            flash.style.cssText = 'position:fixed;inset:0;background:radial-gradient(circle at center,rgba(251,191,36,0.45),rgba(9,9,11,0.2) 55%,transparent 70%);z-index:10000;pointer-events:none;animation:canonFlash 0.9s ease-out forwards';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 950);
+
             const notif = document.createElement('div');
-            notif.innerHTML = `<div style="font-size:28px;line-height:1">🧀</div><div style="font-weight:800;font-size:15px;letter-spacing:1px;margin-top:6px">CANON</div><div style="font-size:11px;opacity:0.75;margin-top:3px">The wall accepts this…</div>`;
-            notif.style.cssText = `position:fixed;top:80px;right:20px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#09090b;padding:16px 22px;border-radius:18px;z-index:10001;box-shadow:0 8px 32px rgba(245,158,11,0.55),0 0 0 2px #fcd34d;text-align:center;animation:slideInRight 0.4s cubic-bezier(0.34,1.56,0.64,1)`;
+            notif.setAttribute('role', 'status');
+            notif.innerHTML = `
+                <div style="font-size:36px;line-height:1;margin-bottom:8px">🧀</div>
+                <div style="font-weight:900;font-size:22px;letter-spacing:2px">CANON</div>
+                <div style="font-size:13px;margin-top:6px;opacity:0.85;max-width:220px">This whisper joined the gospel.</div>
+            `;
+            notif.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(145deg,#fbbf24,#d97706);color:#09090b;padding:22px 28px;border-radius:22px;z-index:10002;box-shadow:0 0 0 3px #fef08c,0 20px 60px rgba(245,158,11,0.55);text-align:center;animation:canonPop 0.45s cubic-bezier(0.34,1.4,0.64,1) both;pointer-events:none';
             document.body.appendChild(notif);
             setTimeout(() => {
-                notif.style.animation = 'slideOutRight 0.35s ease-in';
-                setTimeout(() => notif.remove(), 340);
-            }, 3600);
+                notif.style.animation = 'canonFade 0.4s ease-in forwards';
+                setTimeout(() => notif.remove(), 400);
+            }, 2800);
         }
 
-        function triggerCanonEffect() {
-            const cheese = document.getElementById('hero-cheese');
-            if (!cheese) return;
-            cheese.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        function triggerCanonEffect(whisperId) {
             showCanonNotification();
             sfx('canon');
-            setTimeout(() => {
-                const originalShadow = cheese.style.boxShadow;
-                const originalTransform = cheese.style.transform;
-                cheese.style.transition = 'box-shadow 0.3s ease, transform 0.4s ease';
-                cheese.style.boxShadow = '0 0 150px rgba(245, 158, 11, 0.95), inset 0 0 50px rgba(251, 191, 36, 0.5)';
-                cheese.style.transform = 'scale(1.15)';
-                for (let i = 0; i < 60; i++) {
-                    setTimeout(() => {
-                        const particle = document.createElement('div');
-                        const size = Math.random() * 8 + 3;
-                        const rect = cheese.getBoundingClientRect();
-                        const angle = (i / 60) * Math.PI * 2;
-                        const distance = 40 + Math.random() * 60;
-                        particle.style.cssText = `position:fixed;left:${rect.left + rect.width/2}px;top:${rect.top + rect.height/2}px;width:${size}px;height:${size}px;background:#f59e0b;border-radius:50%;pointer-events:none;z-index:999;box-shadow:0 0 12px #fbbf24;`;
-                        document.body.appendChild(particle);
-                        particle.animate([
-                            { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.9 },
-                            { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0.2)`, opacity: 0 }
-                        ], { duration: 900 + Math.random()*400, easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => particle.remove();
-                    }, i * 2);
-                }
+
+            // Confetti from viewport center (always visible)
+            const cx = window.innerWidth / 2;
+            const cy = window.innerHeight / 2;
+            for (let i = 0; i < 48; i++) {
                 setTimeout(() => {
-                    cheese.style.boxShadow = originalShadow || '';
-                    cheese.style.transform = originalTransform || 'scale(1)';
-                }, 1400);
-            }, 500);
+                    const particle = document.createElement('div');
+                    const size = Math.random() * 8 + 4;
+                    const angle = (i / 48) * Math.PI * 2 + Math.random() * 0.4;
+                    const distance = 80 + Math.random() * 140;
+                    particle.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;background:${['#f59e0b','#fbbf24','#fef08c','#fff'][i % 4]};border-radius:50%;pointer-events:none;z-index:10001;box-shadow:0 0 10px #fbbf24;`;
+                    document.body.appendChild(particle);
+                    particle.animate([
+                        { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+                        { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0.15)`, opacity: 0 }
+                    ], { duration: 900 + Math.random() * 500, easing: 'cubic-bezier(0.22,1,0.36,1)' }).onfinish = () => particle.remove();
+                }, i * 8);
+            }
+
+            // Highlight the canon card on the wall if present
+            if (whisperId) {
+                const wall = document.getElementById('public-wall');
+                if (wall) wall.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                setTimeout(() => {
+                    const card = document.querySelector(`[data-public-whisper="${whisperId}"]`);
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        card.style.transition = 'box-shadow 0.3s ease, transform 0.3s ease';
+                        card.style.boxShadow = '0 0 0 3px #fbbf24, 0 0 40px rgba(245,158,11,0.55)';
+                        card.style.transform = 'scale(1.02)';
+                        setTimeout(() => {
+                            card.style.boxShadow = '';
+                            card.style.transform = '';
+                        }, 2200);
+                    }
+                }, 200);
+            }
         }
 
         // ==================== CONFESSIONAL ====================
@@ -1546,17 +1569,25 @@
             const totalCanon = list.filter(x => x.isCanon).length;
             list.forEach(w => {
                 const isSystem = !!w.isSystem;
+                const heat = typeof w.heat === 'number' ? w.heat : (w.isCanon || isSystem ? 100 : 28);
+                const faded = !isSystem && !w.isCanon && (w.faded || heat < 8);
                 const required = 12 + (w.isCanon ? 0 : totalCanon * 4);
                 const pct = w.isCanon ? 100 : Math.min(100, Math.round((w.amplifies / Math.max(required, 1)) * 100));
                 const remaining = w.isCanon ? 0 : Math.max(0, required - w.amplifies);
+                const heatPct = Math.max(0, Math.min(100, Math.round(heat)));
                 const div = document.createElement('div');
+                if (w.id) div.setAttribute('data-public-whisper', w.id);
                 const voice = w.voice || (normalizeNameKey(w.username) === 'chonky' ? 'chonky' : '');
                 if (isSystem && voice === 'thin') {
                     div.className = 'rounded-3xl border border-zinc-500/40 bg-zinc-900/90 p-5';
                 } else if (isSystem) {
                     div.className = 'rounded-3xl border border-amber-400/50 bg-amber-500/10 p-5';
+                } else if (w.isCanon) {
+                    div.className = 'rounded-3xl border border-amber-400 bg-amber-400/5 p-5';
+                } else if (faded) {
+                    div.className = 'rounded-3xl border border-zinc-800 bg-zinc-950/50 p-5 opacity-60';
                 } else {
-                    div.className = `rounded-3xl border p-5 ${w.isCanon ? 'border-amber-400 bg-amber-400/5' : 'border-zinc-700 bg-zinc-900'}`;
+                    div.className = 'rounded-3xl border border-zinc-700 bg-zinc-900 p-5';
                 }
                 const name = w.username || 'Anonymous Degen';
                 let badge = '';
@@ -1566,32 +1597,43 @@
                     badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">GOSPEL</span>`;
                 } else if (w.isCanon) {
                     badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-amber-400 text-zinc-950 font-bold">CANON</span>`;
+                } else if (faded) {
+                    badge = `<span class="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 font-bold">FADING</span>`;
                 }
-                const growthBar = isSystem
-                    ? `<div class="mt-3 text-xs ${voice === 'thin' ? 'text-zinc-500' : 'text-amber-500/80'}">${voice === 'thin' ? 'A voice from the edge.' : 'The cheese speaks.'}</div>`
-                    : w.isCanon
-                    ? `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Ascended to public canon</span><span>✦</span></div>`
-                    : `<div class="mt-3">
-                           <div class="mb-1 flex justify-between text-[11px] text-zinc-500">
-                               <span>${w.amplifies} amplifies</span>
-                               <span>${remaining} until CANON</span>
+                let growthBar = '';
+                if (isSystem) {
+                    growthBar = `<div class="mt-3 text-xs ${voice === 'thin' ? 'text-zinc-500' : 'text-amber-500/80'}">${voice === 'thin' ? 'A voice from the edge.' : 'The cheese speaks.'}</div>`;
+                } else if (w.isCanon) {
+                    growthBar = `<div class="mt-3 flex items-center gap-1.5 text-xs text-amber-500"><span>✦</span><span>Immortal · public canon</span><span>✦</span></div>`;
+                } else {
+                    const heatLabel = heatPct >= 60 ? 'Alive' : heatPct >= 20 ? 'Thinning' : 'Almost gone';
+                    const heatColor = heatPct >= 60 ? 'from-amber-600 to-amber-400' : heatPct >= 20 ? 'from-zinc-500 to-amber-700' : 'from-zinc-700 to-zinc-500';
+                    growthBar = `<div class="mt-3 space-y-2">
+                           <div class="flex justify-between text-[11px] text-zinc-500">
+                               <span>${w.amplifies || 0} amplifies · ${remaining} to CANON</span>
+                               <span class="${faded ? 'text-zinc-500' : 'text-amber-500/80'}">${heatLabel} ${heatPct}</span>
                            </div>
                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-zinc-800">
-                               <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-700 to-amber-400"></div>
+                               <div style="width:${pct}%" class="h-full rounded-full bg-gradient-to-r from-amber-800 to-amber-500" title="Canon progress"></div>
                            </div>
+                           <div class="h-1 w-full overflow-hidden rounded-full bg-zinc-800/80">
+                               <div style="width:${heatPct}%" class="h-full rounded-full bg-gradient-to-r ${heatColor}" title="Heat — decays without amplifies"></div>
+                           </div>
+                           <div class="text-[10px] text-zinc-600">Amplify to grow heat. Ignore it and the Thin Ones take it.</div>
                        </div>`;
-                const ampBtn = isSystem
+                }
+                const ampBtn = isSystem || w.isCanon
                     ? ''
-                    : `<button onclick="amplifyPublicWhisper('${w.id}')" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 hover:bg-amber-400/10 ${w.isCanon ? 'opacity-40 cursor-not-allowed' : ''}" ${w.isCanon ? 'disabled' : ''}>
-                            Amplify (${w.amplifies})
+                    : `<button onclick="amplifyPublicWhisper('${w.id}')" class="text-xs px-3 py-1 rounded-full border border-amber-400/50 hover:bg-amber-400/10">
+                            Amplify (${w.amplifies || 0})
                         </button>`;
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-3 gap-2 flex-wrap">
-                        <span class="font-semibold ${isSystem && voice === 'thin' ? 'text-zinc-300' : isSystem ? 'text-amber-200' : ''}">${escapeHtml(name)}</span>
+                        <span class="font-semibold ${isSystem && voice === 'thin' ? 'text-zinc-300' : isSystem ? 'text-amber-200' : faded ? 'text-zinc-500' : ''}">${escapeHtml(name)}</span>
                         ${badge}
                         ${ampBtn}
                     </div>
-                    <p class="text-zinc-200 ${isSystem ? 'italic' : ''}">${escapeHtml(w.message)}</p>
+                    <p class="text-zinc-200 ${isSystem ? 'italic' : ''} ${faded ? 'text-zinc-500' : ''}">${escapeHtml(w.message)}</p>
                     ${growthBar}
                 `;
                 container.appendChild(div);
@@ -1707,7 +1749,7 @@
             try {
                 const data = await cult.amplify(id);
                 if (data.becameCanon && typeof triggerCanonEffect === 'function') {
-                    triggerCanonEffect();
+                    triggerCanonEffect(id);
                 }
                 if (data.world) applyWorld(data.world);
                 await cult.refreshWhispers();

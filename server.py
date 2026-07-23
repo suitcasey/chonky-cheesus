@@ -64,6 +64,14 @@ BELIEF_POINTS = {
 # Soft rate limit: belief events per client per day (rite/sanctum/fragment)
 MAX_BELIEF_EVENTS_PER_DAY = 24
 
+# Whisper growth + decay (non-canon only)
+WHISPER_START_HEAT = 28.0
+WHISPER_AMPLIFY_HEAT = 14.0
+WHISPER_HEAT_MAX = 100.0
+WHISPER_HEAT_DECAY_PER_HOUR = 2.5
+WHISPER_FADE_HEAT = 8.0  # below this: visually fading
+WHISPER_DROP_HOURS_AT_ZERO = 6.0  # remove after this long at 0 heat
+
 # Reserved for the myth — players cannot claim these; used as wall voices
 RESERVED_NAME_KEYS = frozenset(
     {
@@ -202,12 +210,58 @@ def apply_decay(store: dict) -> None:
     last = parse_iso(world.get("lastDecayAt")) or now
     hours = max(0.0, (now - last).total_seconds() / 3600.0)
     if hours <= 0:
+        apply_whisper_heat(store)
         return
     thickness = float(world.get("thickness", DEFAULT_THICKNESS))
     thickness = max(MIN_THICKNESS, thickness - hours * DECAY_PER_HOUR)
     world["thickness"] = round(thickness, 2)
     world["lastDecayAt"] = now.isoformat()
-    # Announcements from decay happen when snapshot is taken after decay
+    apply_whisper_heat(store)
+
+
+def apply_whisper_heat(store: dict) -> None:
+    """Grow/decay per-whisper heat. Canon + system are immortal.
+
+    Stored heat is the value at lastHeatAt; each pass decays by elapsed hours
+    then stamps lastHeatAt=now so we don't double-decay.
+    """
+    now = datetime.now(timezone.utc)
+    kept: list = []
+    for w in store.get("whispers", []):
+        if w.get("isSystem") or w.get("isCanon"):
+            w["heat"] = WHISPER_HEAT_MAX
+            w["faded"] = False
+            kept.append(w)
+            continue
+
+        if "heat" not in w:
+            w["heat"] = WHISPER_START_HEAT
+            w["lastHeatAt"] = w.get("createdAt") or now.isoformat()
+
+        heat = float(w.get("heat", WHISPER_START_HEAT))
+        last_heat = parse_iso(w.get("lastHeatAt") or w.get("createdAt")) or now
+        hours = max(0.0, (now - last_heat).total_seconds() / 3600.0)
+        if hours > 0:
+            heat = max(0.0, heat - hours * WHISPER_HEAT_DECAY_PER_HOUR)
+            w["heat"] = round(heat, 1)
+            w["lastHeatAt"] = now.isoformat()
+
+        heat = float(w.get("heat", 0))
+        w["faded"] = heat < WHISPER_FADE_HEAT
+
+        if heat <= 0:
+            zero_since = parse_iso(w.get("zeroHeatAt"))
+            if not zero_since:
+                w["zeroHeatAt"] = now.isoformat()
+                zero_since = now
+            zero_hours = max(0.0, (now - zero_since).total_seconds() / 3600.0)
+            if zero_hours >= WHISPER_DROP_HOURS_AT_ZERO:
+                continue  # dropped from the wall
+        else:
+            w.pop("zeroHeatAt", None)
+
+        kept.append(w)
+    store["whispers"] = kept
 
 
 def post_system_whisper(store: dict, username: str, message: str, voice: str) -> dict:
@@ -412,6 +466,7 @@ class CultHandler(SimpleHTTPRequestHandler):
             with LOCK:
                 store = load_store()
                 apply_decay(store)
+                apply_whisper_heat(store)
                 whispers = list(store["whispers"])
                 save_store(store)
             return self.send_json(200, {"whispers": whispers})
@@ -513,19 +568,25 @@ class CultHandler(SimpleHTTPRequestHandler):
         username = sanitize_name(raw_name)
         client_id = str(data.get("clientId") or "anon")[:64]
 
+        now = utc_now()
         whisper = {
             "id": str(uuid.uuid4()),
             "username": username,
             "message": message,
             "amplifies": 0,
+            "heat": WHISPER_START_HEAT,
+            "faded": False,
             "isCanon": False,
             "isSystem": False,
-            "createdAt": utc_now(),
+            "createdAt": now,
+            "lastAmplifiedAt": now,
+            "lastHeatAt": now,
             "clientId": client_id,
         }
 
         with LOCK:
             store = load_store()
+            apply_whisper_heat(store)
             store["whispers"].insert(0, whisper)
             store["whispers"] = store["whispers"][:MAX_WHISPERS]
             world = thicken(store, "whisper")
@@ -556,13 +617,28 @@ class CultHandler(SimpleHTTPRequestHandler):
             if store["amplify_log"].get(unique_key):
                 return self.send_json(400, {"error": "already_amplified"})
 
-            canon_count = sum(1 for w in store["whispers"] if w.get("isCanon"))
+            apply_whisper_heat(store)
+            # re-find after heat pass (list may have dropped others)
+            whisper = next((w for w in store["whispers"] if w.get("id") == whisper_id), None)
+            if not whisper:
+                return self.send_json(404, {"error": "whisper_not_found"})
+
+            canon_count = sum(1 for w in store["whispers"] if w.get("isCanon") and not w.get("isSystem"))
             required = canon_required(canon_count)
 
             whisper["amplifies"] = int(whisper.get("amplifies", 0)) + 1
+            heat = float(whisper.get("heat", WHISPER_START_HEAT)) + WHISPER_AMPLIFY_HEAT
+            whisper["heat"] = round(min(WHISPER_HEAT_MAX, heat), 1)
+            whisper["faded"] = False
+            now_iso = utc_now()
+            whisper["lastAmplifiedAt"] = now_iso
+            whisper["lastHeatAt"] = now_iso
+            whisper.pop("zeroHeatAt", None)
+
             became_canon = False
             if whisper["amplifies"] >= required:
                 whisper["isCanon"] = True
+                whisper["heat"] = WHISPER_HEAT_MAX
                 became_canon = True
 
             store["amplify_log"][day_key] = used + 1
