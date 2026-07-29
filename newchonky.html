@@ -553,8 +553,8 @@
                     <button onclick="refreshPublicWall()" class="text-xs px-3 py-1.5 rounded-full border border-zinc-700 text-zinc-400 hover:bg-zinc-900">Refresh</button>
                 </div>
                 <div id="public-wake-banner" class="mb-4 hidden rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100/90">
-                    <strong class="text-amber-300">Sanctum is waking…</strong>
-                    <p class="mt-1 text-zinc-400">Free host was asleep. Retrying connection — usually 30–60 seconds. Stay on this page.</p>
+                    <strong class="text-amber-300">The wall is thickening…</strong>
+                    <p class="mt-1 text-zinc-400">Between pilgrims the free host sleeps. Retrying — usually under a minute. Stay on this page; the myth still works offline.</p>
                     <p id="wake-attempt" class="mt-2 text-xs font-mono text-amber-500/80"></p>
                 </div>
                 <div id="public-offline-banner" class="mb-4 hidden rounded-2xl border border-zinc-700 bg-zinc-900/80 p-4 text-sm text-zinc-400">
@@ -594,7 +594,7 @@
                                 class="min-w-0 flex-1 cursor-text select-all rounded-xl border border-zinc-600 bg-zinc-950 px-3 py-2.5 font-mono text-xs text-amber-200 outline-none focus:border-amber-400" />
                             <button type="button" onclick="copyField('copy-public-url', this)" class="shrink-0 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-zinc-950 hover:bg-amber-300">Copy</button>
                         </div>
-                        <p class="mt-2 text-xs text-zinc-500">Refresh in a minute if the free host is still waking.</p>
+                        <p class="mt-2 text-xs text-zinc-500">Free tier naps between pilgrims. Refresh in a minute if it's still cold — not broken, just asleep.</p>
                     </div>
                 </div>
                 <div class="mb-6 rounded-3xl border border-zinc-700 bg-zinc-900 p-6">
@@ -1685,10 +1685,10 @@
                     text.textContent = 'Cult live';
                     text.className = 'text-emerald-400/90';
                 } else if (waking) {
-                    text.textContent = 'Waking…';
+                    text.textContent = 'Rousing…';
                     text.className = 'text-amber-300';
                 } else {
-                    text.textContent = hosted ? 'Connecting…' : 'Solo';
+                    text.textContent = hosted ? 'Deep sleep' : 'Solo';
                     text.className = 'text-zinc-500';
                 }
             }
@@ -1696,9 +1696,9 @@
                 if (online) {
                     note.textContent = 'Connected. Publishes and saints are shared on this host.';
                 } else if (waking) {
-                    note.textContent = 'Free host waking from sleep — hang tight.';
+                    note.textContent = 'Host rising from the cold. Hang tight — usually 30–60s.';
                 } else if (hosted) {
-                    note.textContent = 'Could not reach the cult API yet. Refresh in a moment.';
+                    note.textContent = 'Still cold. Myth works offline; wall returns when the host rises.';
                 } else {
                     note.textContent = 'Offline / solo mode — start server.py for a real public wall.';
                 }
@@ -1708,7 +1708,7 @@
                 const showWake = !online && waking;
                 wakeBanner.classList.toggle('hidden', !showWake);
                 if (wakeAttempt && showWake && maxAttempts) {
-                    wakeAttempt.textContent = `Attempt ${attempt} / ${maxAttempts}`;
+                    wakeAttempt.textContent = `Rung the bell · ${attempt} / ${maxAttempts}`;
                 }
             }
             if (banner) {
@@ -1719,11 +1719,11 @@
                     if (localHelp) localHelp.classList.toggle('hidden', hosted);
                     if (hostedHelp) hostedHelp.classList.toggle('hidden', !hosted);
                     if (offlineTitle) {
-                        offlineTitle.textContent = hosted ? 'Still connecting…' : 'Cult server offline.';
+                        offlineTitle.textContent = hosted ? 'Still in deep sleep.' : 'Cult server offline.';
                     }
                     if (offlineBody) {
                         offlineBody.textContent = hosted
-                            ? 'The free host may still be waking. You can keep exploring the myth offline.'
+                            ? 'Free tier naps between pilgrims — not broken. Keep exploring the myth; refresh in a minute for the wall.'
                             : 'Click a field to select all, then ⌘C — or hit Copy. Local only until the API is up.';
                     }
                     const pub = document.getElementById('copy-public-url');
