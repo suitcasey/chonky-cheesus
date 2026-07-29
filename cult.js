@@ -101,6 +101,26 @@
       return data;
     },
 
+    async getPoll() {
+      const data = await api('/api/poll?clientId=' + encodeURIComponent(getClientId()));
+      this.poll = data.poll || null;
+      return this.poll;
+    },
+
+    async votePoll(option, { fragments, sanctum }) {
+      const data = await api('/api/poll/vote', {
+        method: 'POST',
+        body: JSON.stringify({
+          option,
+          clientId: getClientId(),
+          fragments: fragments || 0,
+          sanctum: !!sanctum,
+        }),
+      });
+      this.poll = data.poll || null;
+      return data;
+    },
+
     /** Retry health for free-tier cold starts (e.g. Render sleep). */
     async probeWithRetry({ attempts = 18, delayMs = 4000, onAttempt } = {}) {
       this.waking = !this.online && isHostedPublic();

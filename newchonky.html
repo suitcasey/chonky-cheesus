@@ -404,8 +404,10 @@
             </div>
         </div>
 
+        <div id="contract-strip" class="mb-6"></div>
+
         <!-- Compact daily rite chip → Profile -->
-        <a id="rite-chip" href="profile.html" class="mb-10 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 hover:border-amber-500/30 transition-colors">
+        <a id="rite-chip" href="profile.html" class="mb-6 flex items-center gap-3 rounded-2xl border border-zinc-800 bg-zinc-900/50 px-4 py-3 hover:border-amber-500/30 transition-colors">
             <div class="min-w-0 flex-1">
                 <div class="text-[10px] uppercase tracking-wider text-zinc-500">Daily rite</div>
                 <div id="rite-chip-title" class="text-sm text-zinc-300 truncate">—</div>
@@ -415,6 +417,30 @@
                 <div class="text-[10px] text-zinc-600">Profile →</div>
             </div>
         </a>
+
+        <!-- Keeper poll: Twin Gospels -->
+        <section id="keeper-poll" class="mb-10 rounded-3xl border border-zinc-800 bg-zinc-900/70 p-5 sm:p-6">
+            <div class="scripture text-[10px] uppercase tracking-[0.2em] text-amber-500/90 mb-1">Keeper poll</div>
+            <h2 id="poll-title" class="display-font text-xl font-bold text-zinc-100">Rite of the Twin Gospels</h2>
+            <p id="poll-blurb" class="mt-1 text-sm text-zinc-500 max-w-2xl">Loading…</p>
+            <div id="poll-meta" class="mt-2 text-xs text-zinc-600 font-mono"></div>
+            <div id="poll-gate" class="mt-4 hidden rounded-2xl border border-zinc-700 bg-zinc-950/50 px-4 py-3 text-sm text-zinc-400">
+                Complete all 7 fragments and the Sanctum trials to vote. Tourists watch; Keepers decide.
+            </div>
+            <div id="poll-options" class="mt-4 grid gap-3 sm:grid-cols-2"></div>
+            <div id="poll-tally" class="mt-4 hidden">
+                <div class="flex justify-between text-[11px] text-zinc-500 mb-1">
+                    <span id="poll-gospel-count">Gospel 0</span>
+                    <span id="poll-tax-count">Tax 0</span>
+                </div>
+                <div class="h-2 w-full overflow-hidden rounded-full bg-zinc-800 flex">
+                    <div id="poll-gospel-bar" class="h-full bg-amber-500 transition-all" style="width:50%"></div>
+                    <div id="poll-tax-bar" class="h-full bg-zinc-500 transition-all" style="width:50%"></div>
+                </div>
+                <p id="poll-my-vote" class="mt-2 text-xs text-zinc-500"></p>
+                <p id="poll-result" class="mt-2 text-sm text-amber-200/90 hidden"></p>
+            </div>
+        </section>
 
         <section class="section-reveal grid items-center gap-12 md:grid-cols-2">
             <div>
@@ -646,6 +672,8 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
+    <script src="contract-strip.js"></script>
     <script src="cult.js"></script>
     <script src="keeper.js"></script>
     <script>
@@ -2116,6 +2144,156 @@
             }
             document.body.classList.remove('world-sacred', 'world-thick', 'world-waning', 'world-thin', 'world-critical');
             if (world.tier) document.body.classList.add('world-' + world.tier);
+
+            let epochLine = document.getElementById('world-epoch-line');
+            if (!epochLine) {
+                const banner = document.getElementById('world-banner');
+                if (banner) {
+                    epochLine = document.createElement('div');
+                    epochLine.id = 'world-epoch-line';
+                    epochLine.className = 'w-full text-xs text-amber-300/90 mt-1';
+                    banner.appendChild(epochLine);
+                }
+            }
+            if (epochLine) {
+                const ep = world.epoch;
+                if (ep && ep.active !== false && ep.label) {
+                    epochLine.textContent = ep.label + (ep.detail ? ' · ' + ep.detail : '');
+                    epochLine.classList.remove('hidden');
+                } else {
+                    epochLine.textContent = '';
+                    epochLine.classList.add('hidden');
+                }
+            }
+        }
+
+        async function refreshPoll() {
+            if (!window.ChonkyPublic || !ChonkyPublic.PublicCult) return;
+            try {
+                if (!ChonkyPublic.PublicCult.online) {
+                    const online = await ChonkyPublic.PublicCult.probe();
+                    if (!online) return;
+                }
+                const poll = await ChonkyPublic.PublicCult.getPoll();
+                renderPoll(poll);
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+
+        function intVote(n) {
+            const x = parseInt(n, 10);
+            return isNaN(x) ? 0 : x;
+        }
+
+        function renderPoll(poll) {
+            if (!poll) return;
+            const title = document.getElementById('poll-title');
+            const blurb = document.getElementById('poll-blurb');
+            const meta = document.getElementById('poll-meta');
+            const gate = document.getElementById('poll-gate');
+            const optsEl = document.getElementById('poll-options');
+            const tally = document.getElementById('poll-tally');
+            if (title) title.textContent = poll.title || 'Keeper poll';
+            if (blurb) blurb.textContent = poll.blurb || poll.subtitle || '';
+            if (meta) {
+                const parts = [poll.status === 'open' ? 'OPEN' : 'CLOSED'];
+                if (poll.closesAt) parts.push('closes ' + new Date(poll.closesAt).toLocaleString());
+                parts.push((poll.totalVotes || 0) + ' votes');
+                if (poll.resultTx) parts.push('tx sealed');
+                meta.textContent = parts.join(' · ');
+            }
+
+            const eligible = discovered.size >= (poll.minFragments || 7) && isSanctumComplete();
+            if (gate) gate.classList.toggle('hidden', eligible || poll.status !== 'open');
+
+            const opts = poll.options || {};
+            const gospel = opts.gospel || {};
+            const tax = opts.tax || {};
+            const gVotes = intVote(gospel.votes);
+            const tVotes = intVote(tax.votes);
+            const total = Math.max(1, gVotes + tVotes);
+
+            if (optsEl) {
+                optsEl.innerHTML = '';
+                [['gospel', gospel, 'amber'], ['tax', tax, 'zinc']].forEach(([id, o, tone]) => {
+                    const card = document.createElement('button');
+                    card.type = 'button';
+                    const voted = poll.myVote === id;
+                    const closed = poll.status !== 'open';
+                    card.disabled = closed || !eligible || !!poll.myVote;
+                    card.className = `text-left rounded-2xl border p-4 transition-colors ${
+                        tone === 'amber'
+                            ? 'border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10'
+                            : 'border-zinc-600 bg-zinc-950/50 hover:bg-zinc-900'
+                    } ${card.disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'} ${voted ? 'ring-2 ring-amber-400/60' : ''}`;
+                    card.innerHTML = `
+                        <div class="text-[10px] uppercase tracking-wider ${tone === 'amber' ? 'text-amber-400' : 'text-zinc-400'} mb-1">${escapeHtml(o.tagline || '')}</div>
+                        <div class="font-bold text-zinc-100 mb-2">${escapeHtml(o.label || id)}</div>
+                        <p class="text-xs text-zinc-400 leading-relaxed mb-2">${escapeHtml(o.coin || '')}</p>
+                        <p class="text-[11px] text-zinc-500 italic leading-relaxed">${escapeHtml(o.myth || '')}</p>
+                        ${voted ? '<div class="mt-2 text-xs font-semibold text-amber-300">Your vote</div>' : ''}
+                    `;
+                    if (!card.disabled) card.onclick = () => castPollVote(id);
+                    optsEl.appendChild(card);
+                });
+            }
+
+            if (tally) {
+                tally.classList.remove('hidden');
+                const gc = document.getElementById('poll-gospel-count');
+                const tc = document.getElementById('poll-tax-count');
+                const gb = document.getElementById('poll-gospel-bar');
+                const tb = document.getElementById('poll-tax-bar');
+                if (gc) gc.textContent = `Gospel ${gVotes}`;
+                if (tc) tc.textContent = `Tax ${tVotes}`;
+                if (gb) gb.style.width = `${(gVotes / total) * 100}%`;
+                if (tb) tb.style.width = `${(tVotes / total) * 100}%`;
+                const mine = document.getElementById('poll-my-vote');
+                if (mine) {
+                    mine.textContent = poll.myVote
+                        ? `You voted: ${poll.myVote === 'gospel' ? 'Gospel Emission' : 'Thin Ones Tax'}`
+                        : eligible
+                            ? 'One vote per Keeper. Transparent tally.'
+                            : '';
+                }
+                const res = document.getElementById('poll-result');
+                if (res) {
+                    if (poll.status === 'closed' && poll.winner) {
+                        res.classList.remove('hidden');
+                        const wlabel = poll.winner === 'gospel' ? 'Gospel Emission' : poll.winner === 'tax' ? 'Thin Ones Tax' : 'Tie';
+                        res.textContent = `Result: ${wlabel}` + (poll.resultTx ? ` · tx: ${poll.resultTx}` : ' · on-chain tx pending');
+                    } else {
+                        res.classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        async function castPollVote(option) {
+            if (!window.ChonkyPublic || !ChonkyPublic.PublicCult) return;
+            try {
+                const data = await ChonkyPublic.PublicCult.votePoll(option, {
+                    fragments: discovered.size,
+                    sanctum: isSanctumComplete(),
+                });
+                renderPoll(data.poll);
+                if (typeof showRankUpToast === 'function') showRankUpToast('Vote sealed');
+                await refreshPublicWall();
+            } catch (e) {
+                const err = (e.body && e.body.error) || e.message;
+                if (err === 'need_sanctum' || err === 'need_fragments') {
+                    alert('Keepers only: finish 7 fragments + Sanctum trials.');
+                } else if (err === 'already_voted') {
+                    alert('You already voted.');
+                    if (e.body && e.body.poll) renderPoll(e.body.poll);
+                } else if (err === 'poll_closed') {
+                    alert('Poll is closed.');
+                    if (e.body && e.body.poll) renderPoll(e.body.poll);
+                } else {
+                    alert(err || 'Vote failed');
+                }
+            }
         }
 
         async function postBelief(kind) {
@@ -2291,8 +2469,13 @@
             if (form) form.addEventListener('submit', sendConfession);
             updateUsernameDisplay();
 
+            if (window.ChonkyContract) {
+                ChonkyContract.renderContractStrip('contract-strip');
+            }
+
             if (window.ChonkyPublic) {
                 await refreshPublicWall();
+                await refreshPoll();
             } else {
                 setCultStatus(false);
             }

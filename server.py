@@ -9,6 +9,10 @@ Endpoints:
   GET  /api/health
   GET  /api/world
   POST /api/belief            { kind, clientId }  kind: rite|sanctum|fragment
+  GET  /api/poll
+  POST /api/poll/vote         { option, clientId, fragments, sanctum }
+  POST /api/poll/close        { secret? }  optional CHONKY_ADMIN_SECRET
+  POST /api/poll/result-tx    { secret?, tx }  attach on-chain proof after execute
   GET  /api/whispers
   POST /api/whispers          { message, username?, fragments, clientId }
   POST /api/whispers/<id>/amplify  { clientId }
@@ -52,6 +56,9 @@ MAX_THICKNESS = 100.0
 MIN_THICKNESS = 0.0
 DEFAULT_THICKNESS = 55.0
 DECAY_PER_HOUR = 1.25
+ADMIN_SECRET = os.environ.get("CHONKY_ADMIN_SECRET", "").strip()
+POLL_DURATION_HOURS = 72
+POLL_QUORUM = 7  # min total votes before early close optional (time still primary)
 BELIEF_POINTS = {
     "whisper": 2.0,
     "amplify": 1.0,
@@ -158,6 +165,53 @@ def parse_iso(ts: str | None) -> datetime | None:
         return None
 
 
+def default_poll() -> dict:
+    """First Keeper poll: unique coin-tied outcomes (execute on-chain when ready)."""
+    return {
+        "id": "twin-gospels-v1",
+        "title": "Rite of the Twin Gospels",
+        "status": "open",  # open | closed
+        "subtitle": "Keepers only. One vote. The cheese remembers.",
+        "blurb": (
+            "Those who finished the fragments and Sanctum decide how $CHONK answers the market. "
+            "Result is public. On-chain execute posts a tx when ready."
+        ),
+        "opensAt": utc_now(),
+        "closesAt": None,  # set on first vote → +72h
+        "quorum": POLL_QUORUM,
+        "requireSanctum": True,
+        "minFragments": 7,
+        "options": {
+            "gospel": {
+                "id": "gospel",
+                "label": "Gospel Emission",
+                "tagline": "Reward the Keepers",
+                "coin": (
+                    "When executed: a drip / claim allocation for addresses that completed "
+                    "the Sanctum (literacy first — not snipers)."
+                ),
+                "myth": "Sanctify the wall. Decay slows. New whispers born hotter. Chonky speaks.",
+                "votes": 0,
+            },
+            "tax": {
+                "id": "tax",
+                "label": "Thin Ones Tax",
+                "tagline": "Tax the exit",
+                "coin": (
+                    "When executed: temporary sell-side tax / fee tilt routed to burn or buyback "
+                    "(post-migrate controls)."
+                ),
+                "myth": "Scorch epoch. Decay rises. Thin Ones loud on the wall. Weak whispers die faster.",
+                "votes": 0,
+            },
+        },
+        "votesByClient": {},
+        "winner": None,
+        "resultTx": None,
+        "closedAt": None,
+    }
+
+
 def default_store() -> dict:
     return {
         "whispers": [],
@@ -168,8 +222,10 @@ def default_store() -> dict:
             "lastBeliefAt": utc_now(),
             "lastDecayAt": utc_now(),
             "lastAnnouncedTier": None,
+            "epoch": None,
         },
         "belief_log": {},
+        "poll": default_poll(),
     }
 
 
@@ -191,6 +247,14 @@ def load_store() -> dict:
         world.setdefault("lastBeliefAt", utc_now())
         world.setdefault("lastDecayAt", utc_now())
         world.setdefault("lastAnnouncedTier", None)
+        world.setdefault("epoch", None)
+        if "poll" not in data or not isinstance(data.get("poll"), dict):
+            data["poll"] = default_poll()
+        else:
+            # ensure option shape
+            poll = data["poll"]
+            poll.setdefault("votesByClient", {})
+            poll.setdefault("options", default_poll()["options"])
         return data
     except (json.JSONDecodeError, OSError):
         return default_store()
@@ -204,16 +268,32 @@ def save_store(store: dict) -> None:
     tmp.replace(STORE_PATH)
 
 
+def epoch_decay_mult(store: dict) -> float:
+    epoch = (store.get("world") or {}).get("epoch") or {}
+    if not epoch:
+        return 1.0
+    ends = parse_iso(epoch.get("endsAt"))
+    if ends and datetime.now(timezone.utc) > ends:
+        return 1.0
+    try:
+        return float(epoch.get("decayMult", 1.0))
+    except (TypeError, ValueError):
+        return 1.0
+
+
 def apply_decay(store: dict) -> None:
     world = store.setdefault("world", {})
     now = datetime.now(timezone.utc)
+    # Auto-close poll if past closesAt
+    maybe_auto_close_poll(store)
     last = parse_iso(world.get("lastDecayAt")) or now
     hours = max(0.0, (now - last).total_seconds() / 3600.0)
     if hours <= 0:
         apply_whisper_heat(store)
         return
+    mult = epoch_decay_mult(store)
     thickness = float(world.get("thickness", DEFAULT_THICKNESS))
-    thickness = max(MIN_THICKNESS, thickness - hours * DECAY_PER_HOUR)
+    thickness = max(MIN_THICKNESS, thickness - hours * DECAY_PER_HOUR * mult)
     world["thickness"] = round(thickness, 2)
     world["lastDecayAt"] = now.isoformat()
     apply_whisper_heat(store)
@@ -242,7 +322,15 @@ def apply_whisper_heat(store: dict) -> None:
         last_heat = parse_iso(w.get("lastHeatAt") or w.get("createdAt")) or now
         hours = max(0.0, (now - last_heat).total_seconds() / 3600.0)
         if hours > 0:
-            heat = max(0.0, heat - hours * WHISPER_HEAT_DECAY_PER_HOUR)
+            wdecay = WHISPER_HEAT_DECAY_PER_HOUR
+            ep = (store.get("world") or {}).get("epoch") or {}
+            ends = parse_iso(ep.get("endsAt"))
+            if ep and (not ends or datetime.now(timezone.utc) <= ends):
+                try:
+                    wdecay *= float(ep.get("whisperHeatDecayMult", 1.0))
+                except (TypeError, ValueError):
+                    pass
+            heat = max(0.0, heat - hours * wdecay)
             w["heat"] = round(heat, 1)
             w["lastHeatAt"] = now.isoformat()
 
@@ -360,6 +448,14 @@ def world_snapshot(store: dict, announce: bool = False) -> dict:
     thickness = float(world.get("thickness", DEFAULT_THICKNESS))
     tier = world_tier(thickness)
     label, threat = world_copy(tier)
+    epoch = world.get("epoch")
+    # Clear expired epoch from response view (keep stored until overwritten)
+    if epoch and epoch.get("endsAt"):
+        ends = parse_iso(epoch.get("endsAt"))
+        if ends and datetime.now(timezone.utc) > ends:
+            epoch = {**epoch, "active": False}
+        else:
+            epoch = {**epoch, "active": True}
     return {
         "thickness": thickness,
         "tier": tier,
@@ -367,7 +463,150 @@ def world_snapshot(store: dict, announce: bool = False) -> dict:
         "threat": threat,
         "lastBeliefAt": world.get("lastBeliefAt"),
         "max": MAX_THICKNESS,
+        "epoch": epoch,
     }
+
+
+def poll_public_view(store: dict, client_id: str | None = None) -> dict:
+    maybe_auto_close_poll(store)
+    poll = store.get("poll") or default_poll()
+    opts = poll.get("options") or {}
+    total = sum(int((opts.get(k) or {}).get("votes") or 0) for k in opts)
+    my = None
+    if client_id:
+        my = (poll.get("votesByClient") or {}).get(client_id)
+    return {
+        "id": poll.get("id"),
+        "title": poll.get("title"),
+        "subtitle": poll.get("subtitle"),
+        "blurb": poll.get("blurb"),
+        "status": poll.get("status"),
+        "opensAt": poll.get("opensAt"),
+        "closesAt": poll.get("closesAt"),
+        "closedAt": poll.get("closedAt"),
+        "quorum": poll.get("quorum"),
+        "requireSanctum": poll.get("requireSanctum", True),
+        "minFragments": poll.get("minFragments", 7),
+        "options": opts,
+        "totalVotes": total,
+        "winner": poll.get("winner"),
+        "resultTx": poll.get("resultTx"),
+        "myVote": my,
+    }
+
+
+def maybe_auto_close_poll(store: dict) -> None:
+    poll = store.get("poll")
+    if not poll or poll.get("status") != "open":
+        return
+    closes = parse_iso(poll.get("closesAt"))
+    if closes and datetime.now(timezone.utc) >= closes:
+        close_poll(store, reason="time")
+
+
+def close_poll(store: dict, reason: str = "manual") -> dict:
+    poll = store.setdefault("poll", default_poll())
+    if poll.get("status") == "closed":
+        return poll
+    opts = poll.get("options") or {}
+    g = int((opts.get("gospel") or {}).get("votes") or 0)
+    t = int((opts.get("tax") or {}).get("votes") or 0)
+    if g > t:
+        winner = "gospel"
+    elif t > g:
+        winner = "tax"
+    else:
+        winner = "tie"
+
+    poll["status"] = "closed"
+    poll["closedAt"] = utc_now()
+    poll["winner"] = winner
+    poll["closeReason"] = reason
+
+    world = store.setdefault("world", {})
+    ends = (datetime.now(timezone.utc).timestamp() + 7 * 86400)
+    ends_iso = datetime.fromtimestamp(ends, tz=timezone.utc).isoformat()
+
+    if winner == "gospel":
+        world["epoch"] = {
+            "mode": "gospel_emission",
+            "label": "Epoch · Gospel Emission",
+            "detail": "Keepers favored. Decay eases. The wall is blessed.",
+            "decayMult": 0.55,
+            "whisperStartHeatBonus": 12,
+            "endsAt": ends_iso,
+        }
+        world["thickness"] = round(
+            min(MAX_THICKNESS, float(world.get("thickness", DEFAULT_THICKNESS)) + 8), 2
+        )
+        post_system_whisper(
+            store,
+            VOICE_CHONKY,
+            "The Keepers chose Gospel Emission. Literacy before snipers. The Stay is rewarded.",
+            "chonky",
+        )
+    elif winner == "tax":
+        world["epoch"] = {
+            "mode": "thin_ones_tax",
+            "label": "Epoch · Thin Ones Tax",
+            "detail": "Exits pay. Decay bites harder. The Thin Ones are loud.",
+            "decayMult": 1.85,
+            "whisperHeatDecayMult": 1.5,
+            "endsAt": ends_iso,
+        }
+        post_system_whisper(
+            store,
+            VOICE_THIN,
+            "Thin Ones Tax. You asked for efficiency. Every exit feeds the fire.",
+            "thin",
+        )
+    else:
+        world["epoch"] = {
+            "mode": "stalemate",
+            "label": "Epoch · Split Scale",
+            "detail": "Tie. Neither gospel nor tax — the cheese waits.",
+            "decayMult": 1.0,
+            "endsAt": ends_iso,
+        }
+        post_system_whisper(
+            store,
+            VOICE_CHONKY,
+            "The Scale balanced. No burn, no emission — yet. Stay until the Keepers speak as one.",
+            "chonky",
+        )
+
+    return poll
+
+
+def cast_poll_vote(store: dict, client_id: str, option: str, fragments: int, sanctum: bool) -> tuple[dict, str | None]:
+    poll = store.setdefault("poll", default_poll())
+    maybe_auto_close_poll(store)
+    if poll.get("status") != "open":
+        return poll_public_view(store, client_id), "poll_closed"
+
+    if poll.get("requireSanctum", True) and not sanctum:
+        return poll_public_view(store, client_id), "need_sanctum"
+    if fragments < int(poll.get("minFragments") or 7):
+        return poll_public_view(store, client_id), "need_fragments"
+
+    option = option.lower().strip()
+    if option not in ("gospel", "tax"):
+        return poll_public_view(store, client_id), "invalid_option"
+
+    votes = poll.setdefault("votesByClient", {})
+    if client_id in votes:
+        return poll_public_view(store, client_id), "already_voted"
+
+    # First vote starts the 72h clock
+    if not poll.get("closesAt"):
+        end = datetime.now(timezone.utc).timestamp() + POLL_DURATION_HOURS * 3600
+        poll["closesAt"] = datetime.fromtimestamp(end, tz=timezone.utc).isoformat()
+
+    votes[client_id] = option
+    opt = poll.setdefault("options", {}).setdefault(option, {})
+    opt["votes"] = int(opt.get("votes") or 0) + 1
+
+    return poll_public_view(store, client_id), None
 
 
 def canon_required(whisper_count_canon: int) -> int:
@@ -457,6 +696,17 @@ class CultHandler(SimpleHTTPRequestHandler):
                 save_store(store)
             return self.send_json(200, {"world": world})
 
+        if path == "/api/poll":
+            from urllib.parse import parse_qs
+
+            qs = parse_qs(parsed.query)
+            client_id = (qs.get("clientId") or [None])[0]
+            with LOCK:
+                store = load_store()
+                view = poll_public_view(store, client_id)
+                save_store(store)
+            return self.send_json(200, {"poll": view})
+
         if path == "/api/whispers":
             with LOCK:
                 store = load_store()
@@ -500,7 +750,88 @@ class CultHandler(SimpleHTTPRequestHandler):
         if path == "/api/belief":
             return self.handle_belief(data)
 
+        if path == "/api/poll/vote":
+            return self.handle_poll_vote(data)
+
+        if path == "/api/poll/close":
+            return self.handle_poll_close(data)
+
+        if path == "/api/poll/result-tx":
+            return self.handle_poll_result_tx(data)
+
         self.send_json(404, {"error": "not_found"})
+
+    def handle_poll_vote(self, data: dict) -> None:
+        client_id = str(data.get("clientId") or "anon")[:64]
+        option = str(data.get("option") or "")
+        try:
+            fragments = int(data.get("fragments", 0))
+        except (TypeError, ValueError):
+            fragments = 0
+        sanctum = bool(data.get("sanctum"))
+
+        with LOCK:
+            store = load_store()
+            view, err = cast_poll_vote(store, client_id, option, fragments, sanctum)
+            save_store(store)
+
+        if err:
+            code = 403 if err in ("need_sanctum", "need_fragments", "already_voted", "poll_closed") else 400
+            return self.send_json(code, {"error": err, "poll": view})
+        return self.send_json(200, {"poll": view})
+
+    def handle_poll_close(self, data: dict) -> None:
+        secret = str(data.get("secret") or "")
+        if ADMIN_SECRET and secret != ADMIN_SECRET:
+            return self.send_json(403, {"error": "forbidden"})
+        # If no admin secret configured, allow close only when past closesAt or quorum
+        with LOCK:
+            store = load_store()
+            poll = store.get("poll") or default_poll()
+            if poll.get("status") != "open":
+                return self.send_json(200, {"poll": poll_public_view(store)})
+
+            if not ADMIN_SECRET or secret != ADMIN_SECRET:
+                closes = parse_iso(poll.get("closesAt"))
+                opts = poll.get("options") or {}
+                total = sum(int((opts.get(k) or {}).get("votes") or 0) for k in opts)
+                time_ok = closes and datetime.now(timezone.utc) >= closes
+                quorum_ok = total >= int(poll.get("quorum") or POLL_QUORUM)
+                if not (time_ok or quorum_ok):
+                    return self.send_json(
+                        403,
+                        {
+                            "error": "not_ready",
+                            "detail": "Wait for closesAt or quorum, or set CHONKY_ADMIN_SECRET to force close.",
+                            "poll": poll_public_view(store),
+                        },
+                    )
+
+            close_poll(store, reason="manual")
+            view = poll_public_view(store)
+            save_store(store)
+        return self.send_json(200, {"poll": view})
+
+    def handle_poll_result_tx(self, data: dict) -> None:
+        secret = str(data.get("secret") or "")
+        if ADMIN_SECRET and secret != ADMIN_SECRET:
+            return self.send_json(403, {"error": "forbidden"})
+        tx = str(data.get("tx") or "").strip()[:200]
+        if not tx:
+            return self.send_json(400, {"error": "empty_tx"})
+        with LOCK:
+            store = load_store()
+            poll = store.setdefault("poll", default_poll())
+            poll["resultTx"] = tx
+            post_system_whisper(
+                store,
+                VOICE_CHONKY if poll.get("winner") == "gospel" else VOICE_THIN,
+                f"On-chain proof sealed: {tx[:80]}{'…' if len(tx) > 80 else ''}",
+                "chonky" if poll.get("winner") == "gospel" else "thin",
+            )
+            view = poll_public_view(store)
+            save_store(store)
+        return self.send_json(200, {"poll": view})
 
     def handle_belief(self, data: dict) -> None:
         kind = str(data.get("kind") or "").lower().strip()
@@ -564,24 +895,31 @@ class CultHandler(SimpleHTTPRequestHandler):
         client_id = str(data.get("clientId") or "anon")[:64]
 
         now = utc_now()
-        whisper = {
-            "id": str(uuid.uuid4()),
-            "username": username,
-            "message": message,
-            "amplifies": 0,
-            "heat": WHISPER_START_HEAT,
-            "faded": False,
-            "isCanon": False,
-            "isSystem": False,
-            "createdAt": now,
-            "lastAmplifiedAt": now,
-            "lastHeatAt": now,
-            "clientId": client_id,
-        }
-
         with LOCK:
             store = load_store()
             apply_whisper_heat(store)
+            start_heat = WHISPER_START_HEAT
+            ep = (store.get("world") or {}).get("epoch") or {}
+            ends = parse_iso(ep.get("endsAt"))
+            if ep and (not ends or datetime.now(timezone.utc) <= ends):
+                try:
+                    start_heat += float(ep.get("whisperStartHeatBonus") or 0)
+                except (TypeError, ValueError):
+                    pass
+            whisper = {
+                "id": str(uuid.uuid4()),
+                "username": username,
+                "message": message,
+                "amplifies": 0,
+                "heat": min(WHISPER_HEAT_MAX, start_heat),
+                "faded": False,
+                "isCanon": False,
+                "isSystem": False,
+                "createdAt": now,
+                "lastAmplifiedAt": now,
+                "lastHeatAt": now,
+                "clientId": client_id,
+            }
             store["whispers"].insert(0, whisper)
             store["whispers"] = store["whispers"][:MAX_WHISPERS]
             world = thicken(store, "whisper")
