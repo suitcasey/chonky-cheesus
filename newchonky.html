@@ -54,35 +54,129 @@
             font-family: 'IBM Plex Mono', ui-monospace, monospace;
             letter-spacing: 0.04em;
         }
+        .cheese-stage {
+            position: relative;
+            width: 20rem; height: 20rem; /* h-80 w-80 */
+        }
+        .cheese-progress-ring {
+            position: absolute;
+            inset: -10px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            background: conic-gradient(
+                from -90deg,
+                #f59e0b calc(var(--frag-progress, 0) * 1%),
+                rgba(63, 63, 70, 0.35) 0
+            );
+            opacity: 0.55;
+            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+            transition: background 0.6s ease, opacity 0.4s ease;
+        }
         .cheese-wheel {
-            transition: transform 0.12s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            transition: transform 0.12s ease, box-shadow 0.4s ease, border-color 0.4s ease, filter 0.4s ease;
             animation: cheese-breath 6s ease-in-out infinite;
         }
-        .lore-spot {
-            position: absolute; width: 26px; height: 26px; border-radius: 50%;
-            cursor: pointer; transition: all 0.3s ease; z-index: 20;
-            border: 2px solid rgba(245, 158, 11, 0.4);
-            background: rgba(245, 158, 11, 0.06);
+        .cheese-wheel.frag-pulse {
+            animation: cheese-frag-pulse 0.55s ease-out;
         }
-        .lore-spot:hover {
-            background: rgba(245, 158, 11, 0.25);
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
-            transform: scale(1.2);
+        /* Subtle cheese pits — scars in the myth, not UI buttons */
+        .lore-spot {
+            position: absolute;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            border: none;
+            opacity: 0.32;
+            background:
+                radial-gradient(circle at 32% 28%, rgba(254, 243, 199, 0.12), transparent 42%),
+                radial-gradient(circle at 50% 55%, rgba(146, 64, 14, 0.55), rgba(69, 26, 3, 0.75) 70%);
+            box-shadow:
+                inset 1.5px 2px 3px rgba(0, 0, 0, 0.35),
+                inset -1px -1px 2px rgba(253, 224, 71, 0.12);
+            transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+        }
+        /* Larger soft hit target without looking bigger */
+        .lore-spot::before {
+            content: '';
+            position: absolute;
+            inset: -14px;
+            border-radius: 50%;
+        }
+        .lore-spot.hint-first:not(.discovered) {
+            opacity: 0.5;
+            animation: pit-breathe 3.8s ease-in-out infinite;
+        }
+        .lore-spot.near:not(.discovered),
+        .lore-spot:hover:not(.discovered),
+        .lore-spot:focus-visible:not(.discovered) {
+            opacity: 0.88;
+            transform: scale(1.12);
+            box-shadow:
+                inset 1.5px 2px 3px rgba(0, 0, 0, 0.3),
+                0 0 12px rgba(245, 158, 11, 0.35),
+                inset -1px -1px 2px rgba(253, 224, 71, 0.2);
+            outline: none;
         }
         .lore-spot.discovered {
-            background: rgba(245, 158, 11, 0.6);
-            border-color: #f59e0b;
-            pointer-events: none;
-            opacity: 0.5;
+            opacity: 0.95;
+            pointer-events: auto;
+            background:
+                radial-gradient(circle at 38% 32%, #fde68a, #f59e0b 45%, #b45309 85%);
+            box-shadow:
+                0 0 10px rgba(245, 158, 11, 0.45),
+                inset 1px 1px 2px rgba(254, 243, 199, 0.35),
+                inset -1px -2px 3px rgba(120, 53, 15, 0.4);
+            animation: none;
         }
-        .final-spot { animation: pulse 2s infinite; }
+        .lore-spot.discovered:hover {
+            transform: scale(1.08);
+            box-shadow:
+                0 0 14px rgba(251, 191, 36, 0.55),
+                inset 1px 1px 2px rgba(254, 243, 199, 0.4);
+        }
+        .lore-spot.just-found {
+            animation: pit-seal 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+        }
+        #final-spot.lore-spot {
+            width: 28px; height: 28px;
+            opacity: 1;
+            background: radial-gradient(circle at 40% 35%, #fef08c, #f59e0b 55%, #d97706);
+            box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6), 0 0 18px rgba(245, 158, 11, 0.55);
+            animation: pulse 2.2s infinite;
+        }
+        #final-spot.lore-spot::before { inset: -10px; }
+        .final-spot { /* keep class for JS */ }
         @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-            50% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55), 0 0 18px rgba(245, 158, 11, 0.45); }
+            50% { box-shadow: 0 0 0 12px rgba(245, 158, 11, 0), 0 0 28px rgba(251, 191, 36, 0.65); }
+        }
+        @keyframes pit-breathe {
+            0%, 100% { opacity: 0.42; transform: scale(1); }
+            50% { opacity: 0.62; transform: scale(1.06); }
+        }
+        @keyframes pit-seal {
+            0% { transform: scale(0.4); opacity: 0.2; filter: brightness(2); }
+            55% { transform: scale(1.25); opacity: 1; }
+            100% { transform: scale(1); filter: brightness(1); }
         }
         @keyframes cheese-breath {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.015); }
+        }
+        @keyframes cheese-frag-pulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            35% { transform: scale(1.04); filter: brightness(1.12); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        .relic-modal-card {
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            background:
+                linear-gradient(160deg, rgba(245, 158, 11, 0.12), transparent 40%),
+                #18181b;
+            box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.08), 0 24px 60px rgba(0, 0, 0, 0.55);
         }
 
         .cheese-awakened {
@@ -219,7 +313,8 @@
             box-shadow: 0 0 24px rgba(245, 158, 11, 0.12);
         }
         @media (prefers-reduced-motion: reduce) {
-            .cheese-wheel, .cheese-awakened, .cheese-sanctified, .cheese-saint, .final-spot, .section-reveal, #entry-veil .veil-title {
+            .cheese-wheel, .cheese-awakened, .cheese-sanctified, .cheese-saint, .final-spot, .section-reveal, #entry-veil .veil-title,
+            .lore-spot.hint-first, .lore-spot.just-found, .cheese-wheel.frag-pulse {
                 animation: none !important;
             }
         }
@@ -252,7 +347,7 @@
         <div class="rounded-2xl border border-amber-400/30 bg-zinc-950/95 px-4 py-3 shadow-xl backdrop-blur flex gap-3 items-center">
             <div class="text-xl leading-none">🧀</div>
             <p class="flex-1 text-xs text-zinc-400 leading-relaxed">
-                The cheese has secrets. Look closer.
+                Look for scars in the cheese — not buttons.
             </p>
             <button type="button" onclick="dismissNewcomerCoach()" class="shrink-0 text-zinc-500 hover:text-zinc-300 text-xs px-1" aria-label="Dismiss">✕</button>
         </div>
@@ -357,20 +452,23 @@
 
             <!-- Cheese -->
             <div class="flex flex-col items-center">
-                <div id="hero-cheese" onclick="biteCheese()" class="cheese-wheel relative mb-4 flex h-80 w-80 items-center justify-center rounded-full border-[12px] border-amber-600 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-400 shadow-2xl">
-                    <div class="lore-spot" style="top: 18%; left: 22%;" data-index="0"></div>
-                    <div class="lore-spot" style="top: 32%; left: 68%;" data-index="1"></div>
-                    <div class="lore-spot" style="top: 55%; left: 20%;" data-index="2"></div>
-                    <div class="lore-spot" style="top: 72%; left: 55%;" data-index="3"></div>
-                    <div class="lore-spot" style="top: 40%; left: 45%;" data-index="4"></div>
-                    <div class="lore-spot" style="top: 25%; left: 52%;" data-index="5"></div>
-                    <div class="lore-spot" style="top: 62%; left: 38%;" data-index="6"></div>
-                    <div id="final-spot" onclick="event.stopImmediatePropagation(); goToFinalLore();" class="lore-spot hidden final-spot" style="top: 48%; left: 48%; width: 34px; height: 34px; background: #f59e0b; border: 3px solid #fef08c; box-shadow: 0 0 25px #f59e0b;"></div>
-                    <div class="pointer-events-none z-10 text-center">
-                        <i class="fa-solid fa-cheese text-8xl text-amber-700"></i>
-                        <div class="mt-2">
-                            <div class="text-4xl font-black tracking-tighter text-amber-800">CHONK</div>
-                            <div id="cheese-status" class="text-xs text-amber-700">BITE • DISCOVER • TRANSCEND</div>
+                <div class="cheese-stage mb-4">
+                    <div id="cheese-progress-ring" class="cheese-progress-ring" style="--frag-progress: 0" aria-hidden="true"></div>
+                    <div id="hero-cheese" onclick="biteCheese()" class="cheese-wheel relative z-[6] flex h-80 w-80 items-center justify-center rounded-full border-[12px] border-amber-600 bg-gradient-to-br from-yellow-300 via-yellow-400 to-amber-400 shadow-2xl">
+                        <div class="lore-spot" style="top: 18%; left: 22%;" data-index="0" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 32%; left: 68%;" data-index="1" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 55%; left: 20%;" data-index="2" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 72%; left: 55%;" data-index="3" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 40%; left: 45%;" data-index="4" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 25%; left: 52%;" data-index="5" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div class="lore-spot" style="top: 62%; left: 38%;" data-index="6" tabindex="0" role="button" aria-label="Cheese scar"></div>
+                        <div id="final-spot" onclick="event.stopImmediatePropagation(); goToFinalLore();" class="lore-spot hidden final-spot" style="top: 48%; left: 48%;" tabindex="0" role="button" aria-label="Enter trials"></div>
+                        <div class="pointer-events-none z-10 text-center">
+                            <i class="fa-solid fa-cheese text-8xl text-amber-700"></i>
+                            <div class="mt-2">
+                                <div class="text-4xl font-black tracking-tighter text-amber-800">CHONK</div>
+                                <div id="cheese-status" class="text-xs text-amber-700">BITE • DISCOVER • TRANSCEND</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -536,11 +634,15 @@
         </div>
     </div>
 
-    <!-- Lore Modal -->
-    <div id="lore-modal" onclick="hideLoreModal()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/70 p-4">
-        <div onclick="event.stopImmediatePropagation()" class="mx-4 w-full max-w-md rounded-3xl border border-zinc-700 bg-zinc-900 p-8 max-h-[85vh] overflow-y-auto">
-            <div id="lore-content" class="mb-6 text-lg leading-relaxed"></div>
-            <div class="text-right"><button onclick="hideLoreModal()" class="rounded-2xl bg-zinc-800 px-6 py-2 text-sm transition-colors hover:bg-zinc-700">Close</button></div>
+    <!-- Lore / Relic Modal -->
+    <div id="lore-modal" onclick="hideLoreModal()" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/75 p-4 backdrop-blur-[2px]">
+        <div onclick="event.stopImmediatePropagation()" class="relic-modal-card mx-4 w-full max-w-md rounded-3xl p-1 max-h-[85vh] overflow-y-auto">
+            <div class="rounded-[1.35rem] bg-zinc-950/90 px-7 py-7">
+                <div id="lore-content" class="mb-6 text-base leading-relaxed"></div>
+                <div class="text-right">
+                    <button onclick="hideLoreModal()" class="rounded-2xl border border-zinc-700 bg-zinc-900 px-6 py-2 text-sm text-zinc-300 transition-colors hover:border-amber-500/30 hover:text-amber-200">Seal</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -760,11 +862,80 @@
             const chatPanel = document.getElementById('chat-panel');
             if (chatPanel) chatPanel.classList.toggle('hidden', discovered.size < 7);
 
+            updateCheeseProgressRing();
+            updateLoreSpotHints();
+
             const prev = currentRank.id;
             updateRankUI();
             if (currentRank.id !== prev && ['initiate', 'believer', 'disciple', 'saint'].includes(currentRank.id)) {
                 // rank toast on fragment unlock handled in revealLore
             }
+        }
+
+        function updateCheeseProgressRing() {
+            const ring = document.getElementById('cheese-progress-ring');
+            if (!ring) return;
+            const p = (discovered.size / 7) * 100;
+            ring.style.setProperty('--frag-progress', String(p));
+            ring.style.opacity = discovered.size === 0 ? '0.25' : discovered.size >= 7 ? '0.75' : '0.55';
+        }
+
+        function updateLoreSpotHints() {
+            const spots = [...document.querySelectorAll('.lore-spot[data-index]')];
+            spots.forEach(s => s.classList.remove('hint-first'));
+            const firstOpen = spots.find(s => {
+                const i = parseInt(s.dataset.index, 10);
+                return !discovered.has(i);
+            });
+            if (firstOpen && discovered.size === 0) firstOpen.classList.add('hint-first');
+        }
+
+        function playFragmentUnlockFx(spotElement) {
+            const cheese = document.getElementById('hero-cheese');
+            if (cheese) {
+                cheese.classList.remove('frag-pulse');
+                void cheese.offsetWidth;
+                cheese.classList.add('frag-pulse');
+                setTimeout(() => cheese.classList.remove('frag-pulse'), 600);
+            }
+            if (!spotElement) return;
+            const rect = spotElement.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const colors = ['#f59e0b', '#fbbf24', '#fef08c', '#fdba74'];
+            for (let i = 0; i < 14; i++) {
+                const p = document.createElement('div');
+                const size = 3 + Math.random() * 5;
+                const angle = (i / 14) * Math.PI * 2 + Math.random() * 0.3;
+                const dist = 28 + Math.random() * 40;
+                p.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:${size}px;height:${size}px;border-radius:${Math.random() > 0.5 ? '50%' : '2px'};background:${colors[i % colors.length]};pointer-events:none;z-index:90;box-shadow:0 0 6px rgba(245,158,11,0.6);`;
+                document.body.appendChild(p);
+                p.animate([
+                    { transform: 'translate(-50%,-50%) scale(1)', opacity: 0.95 },
+                    { transform: `translate(calc(-50% + ${Math.cos(angle) * dist}px), calc(-50% + ${Math.sin(angle) * dist}px)) scale(0.2)`, opacity: 0 }
+                ], { duration: 480 + Math.random() * 280, easing: 'cubic-bezier(0.22,1,0.36,1)' }).onfinish = () => p.remove();
+            }
+            // Soft ripple
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;border:2px solid rgba(251,191,36,0.7);pointer-events:none;z-index:89;`;
+            document.body.appendChild(ripple);
+            ripple.animate([
+                { transform: 'scale(1)', opacity: 0.8 },
+                { transform: 'scale(6)', opacity: 0 }
+            ], { duration: 550, easing: 'ease-out' }).onfinish = () => ripple.remove();
+        }
+
+        function relicFragmentHtml(frag, index, { isNew, held }) {
+            return `
+                <div class="text-center mb-5">
+                    <div class="scripture text-[10px] uppercase tracking-[0.25em] text-amber-500/90 mb-2">${isNew ? 'Fragment sealed' : 'Held fragment'}</div>
+                    <div class="text-xs font-mono text-zinc-500 mb-1">${index + 1} / 7</div>
+                    <h3 class="display-font text-2xl font-bold text-amber-100 tracking-tight">${escapeHtml(frag.title)}</h3>
+                </div>
+                <p class="text-zinc-300 text-[15px] leading-relaxed text-center">${escapeHtml(frag.text)}</p>
+                ${isNew ? `<p class="mt-5 text-center text-[11px] text-amber-500/70 scripture uppercase tracking-wider">The myth remembers</p>` : ''}
+                ${held && !isNew ? `<p class="mt-5 text-center text-[11px] text-zinc-600">Already part of you</p>` : ''}
+            `;
         }
 
         function revealLore(index, spotElement) {
@@ -774,19 +945,18 @@
             const prevRank = currentRank.id;
 
             if (discovered.has(index)) {
-                content.innerHTML = `
-                    <div class="mb-2 text-sm text-amber-400 font-bold">${frag.title.toUpperCase()} · ALREADY HELD</div>
-                    <p class="text-zinc-300">${frag.text}</p>
-                `;
+                content.innerHTML = relicFragmentHtml(frag, index, { isNew: false, held: true });
             } else {
                 discovered.add(index);
                 saveDiscoveredLore();
-                if (spotElement) spotElement.classList.add('discovered');
+                if (spotElement) {
+                    spotElement.classList.add('discovered', 'just-found');
+                    spotElement.classList.remove('near', 'hint-first');
+                    setTimeout(() => spotElement.classList.remove('just-found'), 750);
+                    playFragmentUnlockFx(spotElement);
+                }
                 updateLoreCounter();
-                content.innerHTML = `
-                    <div class="mb-2 text-sm text-amber-400 font-bold">FRAGMENT ${index + 1} · ${frag.title.toUpperCase()}</div>
-                    <p class="text-zinc-200">${frag.text}</p>
-                `;
+                content.innerHTML = relicFragmentHtml(frag, index, { isNew: true, held: false });
                 sfx('unlock');
                 if (typeof updateNewcomerCoach === 'function') updateNewcomerCoach();
                 postBelief('fragment');
@@ -838,14 +1008,46 @@
             modal.classList.add('hidden');
         }
 
+        function initLoreProximity() {
+            const cheese = document.getElementById('hero-cheese');
+            if (!cheese || cheese.dataset.proximityBound) return;
+            cheese.dataset.proximityBound = '1';
+            const NEAR = 52;
+            cheese.addEventListener('pointermove', (e) => {
+                document.querySelectorAll('.lore-spot[data-index]').forEach(spot => {
+                    if (spot.classList.contains('discovered')) {
+                        spot.classList.remove('near');
+                        return;
+                    }
+                    const r = spot.getBoundingClientRect();
+                    const d = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+                    spot.classList.toggle('near', d < NEAR);
+                });
+            });
+            cheese.addEventListener('pointerleave', () => {
+                document.querySelectorAll('.lore-spot.near').forEach(s => s.classList.remove('near'));
+            });
+        }
+
         function initLoreSpots() {
             document.querySelectorAll('.lore-spot[data-index]').forEach(spot => {
                 const index = parseInt(spot.dataset.index, 10);
                 if (!isNaN(index)) {
                     if (discovered.has(index)) spot.classList.add('discovered');
-                    spot.onclick = (e) => { e.stopImmediatePropagation(); revealLore(index, spot); };
+                    const open = () => { revealLore(index, spot); };
+                    spot.onclick = (e) => { e.stopImmediatePropagation(); open(); };
+                    spot.onkeydown = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            open();
+                        }
+                    };
                 }
             });
+            initLoreProximity();
+            updateLoreSpotHints();
+            updateCheeseProgressRing();
             updateLoreCounter();
         }
 
